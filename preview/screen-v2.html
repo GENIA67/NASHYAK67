@@ -37,7 +37,8 @@ const q=data.question;
 if(data.stage==="question"&&q){
  $("#board").style.display="none";$("#question").style.display="flex";$("#notice").textContent="";
  $("#category").textContent=q.category+" · "+q.points+" балів";
- $("#qtext").textContent=q.text;$("#answer").textContent="Відповідь: "+q.answer;
+ $("#qtext").textContent=q.text;
+ $("#answer").innerHTML=(q.answer?'<div>'+esc(q.answer)+'</div>':'')+(q.answerImage&&/^data:image\/(png|jpeg|webp|gif);base64,/i.test(q.answerImage)?'<img src="'+q.answerImage+'" alt="Правильна відповідь" style="display:block;max-width:85vw;max-height:52vh;object-fit:contain;margin:16px auto 0;border-radius:14px">':'');
  $("#answer").style.display=q.shown?"block":"none";$("#qtext").style.display=q.shown?"none":"block";
  $("#media").innerHTML=q.shown?"":mediaHTML(q.media);
  $("#responding").textContent=q.shown?"":data.responding?"Відповідає: "+data.responding:"";
