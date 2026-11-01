@@ -32,7 +32,7 @@ function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 function mediaHTML(url){if(!url)return "";if(/^data:image\/(png|jpeg|webp|gif);base64,/i.test(url))return '<img class="media" src="'+url+'" alt="Фото до запитання">';if(!/^https?:\/\//i.test(url))return "";const safe=esc(url);if(/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url))return '<img class="media" src="'+safe+'">';if(/\.(mp4|webm)(\?|$)/i.test(url))return '<video class="media" autoplay controls src="'+safe+'"></video>';if(/\.(mp3|wav|ogg)(\?|$)/i.test(url))return '<audio controls src="'+safe+'"></audio>';return '<a href="'+safe+'" target="_blank" rel="noopener" style="color:#f4c44e">Відкрити матеріал</a>'}
 function render(){let data;try{data=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!data){$("#notice").textContent="Відкрий гру в панелі ведучої, щоб розпочати.";return}
 $("#round").textContent="· "+(data.round||"");
-$("#scores").innerHTML=(data.players||[]).map(p=>'<div class="player">'+esc(p.name)+'<b>'+Number(p.score||0)+'</b></div>').join("");
+$("#scores").innerHTML=(data.players||[]).filter((p,i)=>i!==0).map(p=>'<div class="player">'+esc(p.name)+'<b>'+Number(p.score||0)+'</b></div>').join("");
 const q=data.question;
 if(data.stage==="final"){
  $("#board").style.display="none";$("#notice").textContent="";
