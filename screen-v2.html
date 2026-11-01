@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>НАШЯК — екран гравців</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#223d76,#0b1226 65%);color:#fff;font-family:system-ui,Arial,sans-serif;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;border-bottom:1px solid #40547c;gap:20px}
+.brand{font-weight:1000;font-size:26px;letter-spacing:.12em}.brand b,.gold{color:#f4c44e}
+button{border:0;border-radius:10px;padding:10px 15px;background:#f4c44e;color:#17213a;font-weight:800;cursor:pointer}
+main{padding:25px 4vw 40px;max-width:1800px;margin:auto}
+#scores{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:12px 0 25px}
+.player{background:#1b315b;border:1px solid #486ba0;padding:12px 25px;border-radius:14px;text-align:center;min-width:130px}
+.player b{display:block;color:#f4c44e;font-size:clamp(22px,2.5vw,38px)}
+.board{width:100%;overflow-x:auto;background:#671d2c;padding:2px}
+.quiz-table{width:100%;min-width:720px;border-collapse:separate;border-spacing:2px;table-layout:fixed}
+.quiz-table th,.quiz-table td{height:clamp(76px,11vh,135px);text-align:center;vertical-align:middle;padding:10px 5px}
+.quiz-table th{width:40%;background:#0a102d;color:#fff;font-weight:900;font-size:clamp(18px,2.6vw,42px);line-height:1.12;text-transform:uppercase;overflow-wrap:anywhere}
+.quiz-table td{background:linear-gradient(160deg,#1749c5,#08247c);color:white;font-size:clamp(21px,3vw,43px);font-weight:900}
+.quiz-table td.used{background:#101b40;color:#637193}
+#question{display:none;min-height:65vh;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:26px}
+#category{font-size:clamp(24px,3vw,48px);font-weight:900;color:#f4c44e}
+#qtext{font-size:clamp(32px,5vw,76px);font-weight:850;line-height:1.15;max-width:1300px;overflow-wrap:anywhere}
+#answer{display:none;font-size:clamp(32px,5vw,72px);font-weight:900;color:#7ee4b5}
+#responding{font-size:clamp(18px,2vw,30px);color:#e7d294}
+.media{display:block;max-height:55vh;max-width:85vw;width:auto;height:auto;object-fit:contain;border-radius:14px;margin:16px auto 0}
+#notice{text-align:center;color:#bdcbea}#finalTopicsScreen{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:28px auto;max-width:1300px}.final-topic{background:#0a102d;border:2px solid #294e9a;border-radius:12px;padding:32px 14px;text-align:center;font-weight:900;font-size:clamp(22px,2.8vw,40px);overflow-wrap:anywhere}
+#awards{display:none;position:relative;min-height:65vh;text-align:center;overflow:hidden;padding:25px 12px 60px}#awards h1{font-size:clamp(32px,5vw,72px);color:#f4c44e;margin:10px 0 8px}.award-sub{color:#c2d0ee;font-size:clamp(17px,2vw,28px)}#awardList{max-width:950px;margin:25px auto;display:flex;flex-direction:column;gap:12px}.award-entry{display:flex;justify-content:space-between;align-items:center;gap:15px;background:#182c55;border:1px solid #45639b;border-radius:18px;padding:16px 25px;font-size:clamp(20px,2.5vw,36px);font-weight:800;opacity:0;transform:translateY(28px) scale(.96);animation:awardReveal .65s ease forwards;animation-delay:var(--delay)}.award-entry.winner{border:3px solid #f4c44e;background:linear-gradient(110deg,#49391b,#223e70,#49391b);color:#ffe28b;box-shadow:0 0 25px #f4c44e55}.rank{color:#f4c44e;margin-right:14px}#awardGreeting{opacity:0;transform:scale(.75);animation:awardWinner 1s cubic-bezier(.2,1.4,.3,1) forwards;animation-delay:var(--winner-delay);font-size:clamp(25px,4vw,56px);font-weight:1000;color:#f4c44e;margin:30px auto 10px}#awardGreeting small{display:block;font-size:clamp(16px,2vw,25px);color:#fff;margin-top:8px}.confetti{position:absolute;top:-20px;width:9px;height:16px;background:var(--c);left:var(--x);opacity:0;animation:confettiFall 3.3s linear forwards;animation-delay:var(--d);pointer-events:none}@keyframes awardReveal{to{opacity:1;transform:translateY(0) scale(1)}}@keyframes awardWinner{to{opacity:1;transform:scale(1)}}@keyframes confettiFall{0%{opacity:0;transform:translateY(-20px) rotate(0)}10%{opacity:1}90%{opacity:1}100%{opacity:0;transform:translateY(85vh) rotate(740deg)}}@media(prefers-reduced-motion:reduce){.award-entry,#awardGreeting{animation-duration:.01ms!important;animation-delay:0ms!important}.confetti{display:none}}</style></head><body>
+<header><div class="brand">НАШ<b>ЯК</b> <span id="round"></span></div><button id="fullscreen">На весь екран ⛶</button></header>
+<main><div id="scores"></div><div id="board"></div><div id="finalTopicsScreen" style="display:none"></div><div id="question"><div id="category"></div><div id="finalPrize" style="display:none;color:#f4c44e;font-weight:900;font-size:clamp(26px,3.5vw,52px);padding:12px 22px;border:2px solid #f4c44e;border-radius:14px"></div><div id="qtext"></div><div id="media"></div><div id="responding"></div><div id="answer"></div></div><div id="notice"></div><section id="awards"><div class="award-sub">НАШЯК · РЕЗУЛЬТАТИ ГРИ</div><h1>🏆 ПІДСУМКИ</h1><div id="awardList"></div><div id="awardGreeting"></div><div id="awardConfetti"></div></section></main>
+<script>
+const KEY="nashyak-preview-audience-v1", $=s=>document.querySelector(s);
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function mediaHTML(url){if(!url)return "";if(/^data:image\/(png|jpeg|webp|gif);base64,/i.test(url))return '<img class="media" src="'+url+'" alt="Фото до запитання">';if(!/^https?:\/\//i.test(url))return "";const safe=esc(url);if(/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url))return '<img class="media" src="'+safe+'">';if(/\.(mp4|webm)(\?|$)/i.test(url))return '<video class="media" autoplay controls src="'+safe+'"></video>';if(/\.(mp3|wav|ogg)(\?|$)/i.test(url))return '<audio controls src="'+safe+'"></audio>';return '<a href="'+safe+'" target="_blank" rel="noopener" style="color:#f4c44e">Відкрити матеріал</a>'}
+let lastAwardsId=null;
+function renderAwards(data){
+ const players=(data.players||[]).filter(p=>p.index!==0).slice().sort((a,b)=>Number(b.score)-Number(a.score));
+ if(!players.length)return;
+ const id=data.awardsId||"default";if(lastAwardsId===id)return;lastAwardsId=id;
+ const top=Number(players[0].score)||0,winners=players.filter(p=>Number(p.score)===top);
+ const ordered=players.slice().reverse(),delayStep=Math.min(1.15,5/Math.max(1,ordered.length)),base=.7;
+ $("#awardList").innerHTML=ordered.map((p,i)=>'<div class="award-entry '+(Number(p.score)===top?'winner':'')+'" style="--delay:'+(base+i*delayStep)+'s"><span><span class="rank">'+(1+players.filter(x=>Number(x.score)>Number(p.score)).length)+'.</span>'+esc(p.name)+'</span><b>'+Number(p.score).toLocaleString("uk-UA")+'</b></div>').join("");
+ const finish=base+ordered.length*delayStep+.4;
+ $("#awardGreeting").style.setProperty("--winner-delay",finish+"s");
+ $("#awardGreeting").innerHTML=(winners.length===1?"🎉 ВІТАЄМО ПЕРЕМОЖЦЯ!":"🎉 ВІТАЄМО ПЕРЕМОЖЦІВ!")+"<small>"+winners.map(p=>esc(p.name)).join(" · ")+"</small>";
+ const colors=["#f4c44e","#ffffff","#71b9ff","#ff759f","#85edc3"];
+ $("#awardConfetti").innerHTML=Array.from({length:65},(_,i)=>'<i class="confetti" style="--x:'+((i*73.7)%100)+'%;--c:'+colors[i%colors.length]+';--d:'+(finish+(i%12)*.11)+'s"></i>').join("");
+}
+function render(){let data;try{data=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!data){$("#notice").textContent="Відкрий гру в панелі ведучої, щоб розпочати.";return}
+$("#round").textContent="· "+(data.round||"");
+ if(data.stage==="awards"){$("#scores").style.display="none";$("#board").style.display="none";$("#question").style.display="none";$("#finalTopicsScreen").style.display="none";$("#notice").style.display="none";$("#awards").style.display="block";renderAwards(data);return;}
+ lastAwardsId=null;$("#awards").style.display="none";$("#scores").style.display="flex";$("#notice").style.display="block";
+$("#scores").innerHTML=(data.players||[]).filter((p,i)=>i!==0).map(p=>'<div class="player">'+esc(p.name)+'<b>'+Number(p.score||0)+'</b></div>').join("");
+const q=data.question;
+if(data.stage==="final"){
+ $("#board").style.display="none";$("#notice").textContent="";
+ if(data.finalStage==="topics"||data.finalStage==="setup"){
+ $("#question").style.display="none";$("#finalTopicsScreen").style.display="grid";$("#finalPrize").style.display="none";
+ $("#finalTopicsScreen").innerHTML=(data.topics||[]).map(t=>'<div class="final-topic">'+esc(t)+'</div>').join("");
+ }else{
+ $("#finalTopicsScreen").style.display="none";$("#question").style.display="flex";
+ $("#category").textContent=q?.category||"ФІНАЛ";$("#finalPrize").style.display=data.finalStage==="question"?"block":"none";$("#finalPrize").textContent="Вартість правильної відповіді: "+Number(data.finalValue||0).toLocaleString("uk-UA")+" балів";$("#qtext").textContent=q?.text||"";
+ $("#qtext").style.display=data.finalStage==="answer"?"none":"block";
+ $("#media").innerHTML=data.finalStage==="answer"?"":mediaHTML(q?.media||"");
+ $("#answer").innerHTML='<div style="font-size:clamp(22px,3vw,42px);margin-bottom:16px">Відповідь:</div>'+(q?.answer?'<div>'+esc(q.answer)+'</div>':'')+(q?.answerImage?'<img src="'+q.answerImage+'" alt="Фото правильної відповіді" style="display:block;max-width:85vw;max-height:55vh;object-fit:contain;margin:16px auto 0;border-radius:14px">':'');
+ $("#answer").style.display=data.finalStage==="answer"?"block":"none";$("#responding").textContent="";
+ }return;
+}
+$("#finalTopicsScreen").style.display="none";$("#finalPrize").style.display="none";
+if(data.stage==="question"&&q){
+ $("#board").style.display="none";$("#question").style.display="flex";$("#notice").textContent="";
+ $("#category").textContent=q.modifier?"МОДИФІКАТОР":q.category+" · "+q.points+" балів";
+ $("#qtext").textContent=q.text;
+ $("#answer").innerHTML='<div style="font-size:clamp(22px,3vw,42px);font-weight:900;margin-bottom:16px">Відповідь:</div>'+(q.answer?'<div>'+esc(q.answer)+'</div>':'')+(q.answerImage&&/^data:image\/(png|jpeg|webp|gif);base64,/i.test(q.answerImage)?'<img src="'+q.answerImage+'" alt="Фото правильної відповіді" style="display:block;max-width:85vw;max-height:55vh;object-fit:contain;margin:16px auto 0;border-radius:14px">':'');
+ $("#answer").style.display=!q.modifier&&q.shown?"block":"none";$("#qtext").style.display=q.modifier||!q.shown?"block":"none";
+ $("#media").innerHTML=q.modifier||q.shown?"":mediaHTML(q.media);
+ $("#responding").textContent=q.modifier||q.shown?"":data.responding?"Відповідає: "+data.responding:"";
+ }else{
+ $("#board").style.display="block";$("#question").style.display="none";$("#notice").textContent="";
+ const cats=data.categories||[];
+ const count=Math.max(1,...cats.map(c=>(c.tiles||[]).length));
+ $("#board").innerHTML='<table class="quiz-table"><colgroup><col style="width:40%">'+Array.from({length:count},()=>'<col style="width:'+60/count+'%">').join('')+'</colgroup><tbody>'+
+ cats.map(c=>'<tr><th scope="row">'+esc(c.name)+'</th>'+Array.from({length:count},(_,i)=>{const t=(c.tiles||[])[i];return '<td class="'+(t?.used?'used':'')+'">'+(t?(t.used?'':esc(t.value)):'')+'</td>'}).join('')+'</tr>').join('')+'</tbody></table>';
+ }}
+window.addEventListener("storage",e=>{if(e.key===KEY)render()});
+$("#fullscreen").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
+render();
+</script></body></html>
