@@ -8,12 +8,12 @@ const describeError=e=>String(e?.code||e?.message||e||"невідома поми
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const render=()=>{
  const list=state?.players||[];
- if(uid){const mine=Object.entries(claims).find(([i,v])=>v===uid);selected=mine?Number(mine[0]):null}
- const confirmed=selected!==null&&selected<list.length&&claims["p"+selected]===uid;
+ if(uid){const mine=Object.entries(claims).find(([i,v])=>v===uid&&i!=="0");selected=mine?Number(mine[0]):null}
+ const confirmed=selected!==null&&selected<list.length&&claims[String(selected)]===uid;
  choose.hidden=confirmed;document.querySelector(".scorecard").hidden=!confirmed;buzz.hidden=!confirmed;
  if(!confirmed){
    choices.hidden=pending!==null;confirm.hidden=pending===null;
-   choices.innerHTML=list.map((p,i)=>'<button class="choice" data-index="'+i+'" '+(claims["p"+i]?'disabled':'')+'>'+esc(p.name)+(claims["p"+i]?' · зайнято':'')+'</button>').join("");
+   choices.innerHTML=list.map((p,i)=>i===0?"":'<button class="choice" data-index="'+i+'" '+(claims[String(i)]?'disabled':'')+'>'+esc(p.name)+(claims[String(i)]?' · зайнято':'')+'</button>').join("");
    choices.querySelectorAll("button:not(:disabled)").forEach(b=>b.onclick=()=>{pending=Number(b.dataset.index);render()});
    el("onlineConfirmName").textContent=pending===null?"":"Закріпити за цим телефоном: "+(list[pending]?.name||"")+"?";
  }
@@ -23,8 +23,8 @@ const render=()=>{
  status.textContent=errorMessage?errorMessage:excluded&&active?"Ти вже відповідав на це запитання":active&&winner?.questionId===state?.questionId?(winner.uid===uid?"🏆 Ти натиснула першою!":"Першим натиснув: "+winner.name):!uid?"Підключення до Firebase…":!state?"Очікування кімнати":!list.length?"Ведуча ще не додала гравців":!confirmed?"Обери вільного гравця та підтвердь":!active?"Очікування запитання":pressed===state.questionId?"Кнопку натиснуто!":"Можна натискати!";
 };
 el("onlineNo").onclick=()=>{pending=null;render()};
-el("onlineYes").onclick=async()=>{if(pending===null||!uid)return;const idx=pending;el("onlineYes").disabled=true;try{
- const result=await runTransaction(ref(db,"rooms/"+room+"/claims/p"+idx),current=>current===null?uid:undefined,{applyLocally:false});
+el("onlineYes").onclick=async()=>{if(pending===null||pending===0||!uid)return;const idx=pending;el("onlineYes").disabled=true;try{
+ const result=await runTransaction(ref(db,"rooms/"+room+"/claims/"+idx),current=>current===null?uid:undefined,{applyLocally:false});
  if(!result.committed){status.textContent="Цього гравця вже зайняли. Обери іншого."}
  else{selected=idx;pending=null}
 }catch(e){status.textContent="Помилка закріплення: "+describeError(e)}finally{el("onlineYes").disabled=false;render()}};
