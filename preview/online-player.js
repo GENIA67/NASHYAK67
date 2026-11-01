@@ -9,7 +9,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 const render=()=>{
  const list=state?.players||[];
  if(uid){const mine=Object.entries(claims).find(([i,v])=>v===uid&&i!=="0");selected=mine?Number(mine[0]):null}
- const ended=state?.stage==="awards"||state?.stage==="finished";
+ const ended=state?.stage==="awards"||state?.stage==="finished";const lateWait=state?.stage==="question"&&selected===null;
  const results=el("onlineResults");results.hidden=!ended||exited;
  if(ended&&!exited){
  const ranked=list.map((p,i)=>({name:p.name,score:Number(p.score)||0,index:p.index??i})).filter(p=>p.index!==0).sort((a,b)=>b.score-a.score||a.index-b.index);
@@ -23,7 +23,7 @@ const render=()=>{
  }
  
  const confirmed=selected!==null&&claims[String(selected)]===uid&&list.some((p,i)=>(p.index??i)===selected);
- choose.hidden=ended||exited||confirmed;document.querySelector(".scorecard").hidden=ended||exited||!confirmed;buzz.hidden=ended||exited||!confirmed;
+ choose.hidden=ended||exited||confirmed||lateWait;document.querySelector(".scorecard").hidden=ended||exited||!confirmed;buzz.hidden=ended||exited||!confirmed;
  if(!confirmed){
    choices.hidden=pending!==null;confirm.hidden=pending===null;
    choices.innerHTML=list.map((p,i)=>i===0?"":'<button class="choice" data-index="'+i+'" '+(claims[String(i)]?'disabled':'')+'>'+esc(p.name)+(claims[String(i)]?' · зайнято':'')+'</button>').join("");
@@ -32,17 +32,17 @@ const render=()=>{
  }
  const p=list.find((p,i)=>(p.index??i)===selected);name.textContent=confirmed?p.name:"Гравець";score.textContent=(confirmed?(p?.score||0):0).toLocaleString("uk-UA");
  const active=!exited&&!!state?.questionId&&state?.stage==="question",excluded=(state?.excluded||[]).includes(selected);
- buzz.disabled=!confirmed||!uid||!active||excluded||busy||!!(winner&&winner.questionId===state?.questionId);
- status.textContent=exited?"Ти вийшла з гри. Можна закрити цю вкладку.":ended?"":errorMessage?errorMessage:excluded&&active?"Ти вже відповідав на це запитання":active&&winner?.questionId===state?.questionId?(winner.uid===uid?"🏆 Ти натиснула першою!":"Першим натиснув: "+winner.name):!uid?"Підключення до Firebase…":!state?"Очікування кімнати":!list.length?"Ведуча ще не додала гравців":!confirmed?"Обери вільного гравця та підтвердь":!active?"Очікування запитання":pressed===state.questionId?"Кнопку натиснуто!":"Можна натискати!";
+ buzz.disabled=!confirmed||!uid||!active||!(state?.eligible||[]).includes(selected)||excluded||busy||!!(winner&&winner.questionId===state?.questionId);
+ status.textContent=lateWait?"Гра вже розпочалася. Дочекайся завершення поточного запитання, щоб обрати гравця.":confirmed&&active&&!(state?.eligible||[]).includes(selected)?"Ти приєднався під час запитання. Зможеш відповідати з наступного.":exited?"Ти вийшла з гри. Можна закрити цю вкладку.":ended?"":errorMessage?errorMessage:excluded&&active?"Ти вже відповідав на це запитання":active&&winner?.questionId===state?.questionId?(winner.uid===uid?"🏆 Ти натиснула першою!":"Першим натиснув: "+winner.name):!uid?"Підключення до Firebase…":!state?"Очікування кімнати":!list.length?"Ведуча ще не додала гравців":!confirmed?"Обери вільного гравця та підтвердь":!active?"Очікування запитання":pressed===state.questionId?"Кнопку натиснуто!":"Можна натискати!";
 };
 el("onlineExit").onclick=()=>{exited=true;render()};
 el("onlineNo").onclick=()=>{pending=null;render()};
-el("onlineYes").onclick=async()=>{if(pending===null||pending===0||!uid)return;const idx=pending;el("onlineYes").disabled=true;try{
+el("onlineYes").onclick=async()=>{if(pending===null||pending===0||!uid||state?.stage==="question"||state?.stage==="awards"||state?.stage==="finished")return;const idx=pending;el("onlineYes").disabled=true;try{
  const result=await runTransaction(ref(db,"rooms/"+room+"/claims/"+idx),current=>current===null?uid:undefined,{applyLocally:false});
  if(!result.committed){status.textContent="Цього гравця вже зайняли. Обери іншого."}
  else{selected=idx;pending=null}
 }catch(e){status.textContent="Помилка закріплення: "+describeError(e)}finally{el("onlineYes").disabled=false;render()}};
-buzz.onclick=async()=>{if(buzz.disabled||!uid||selected===null)return;const q=state.questionId;errorMessage="";busy=true;pressed=q;render();try{const result=await runTransaction(ref(db,"rooms/"+room+"/winner"),v=>v===null?{uid,playerIndex:selected,name:state.players[selected]?.name||"Гравець",questionId:q}:undefined,{applyLocally:false});winner=result.snapshot.val();if(!result.committed&&winner?.questionId!==q)errorMessage="Натискання не зараховано: запитання змінилося.";else if(!result.committed&&!winner)errorMessage="Не вдалося зафіксувати натискання. Спробуй ще раз."}catch(e){pressed="";errorMessage="Помилка кнопки: "+describeError(e)}finally{busy=false;render()}};
+buzz.onclick=async()=>{if(buzz.disabled||!uid||selected===null)return;const q=state.questionId;errorMessage="";busy=true;pressed=q;render();try{const result=await runTransaction(ref(db,"rooms/"+room+"/winner"),v=>v===null?{uid,playerIndex:selected,name:state.players.find((p,i)=>(p.index??i)===selected)?.name||"Гравець",questionId:q}:undefined,{applyLocally:false});winner=result.snapshot.val();if(!result.committed&&winner?.questionId!==q)errorMessage="Натискання не зараховано: запитання змінилося.";else if(!result.committed&&!winner)errorMessage="Не вдалося зафіксувати натискання. Спробуй ще раз."}catch(e){pressed="";errorMessage="Помилка кнопки: "+describeError(e)}finally{busy=false;render()}};
 onValue(ref(db,"rooms/"+room+"/winner"),snap=>{winner=snap.val();if(!winner)errorMessage="";render()},e=>status.textContent="Помилка результату: "+describeError(e));
 onAuthStateChanged(auth,u=>{uid=u?.uid||"";render()});
 signInAnonymously(auth).catch(e=>{status.textContent=e.code==="auth/admin-restricted-operation"?"У Firebase потрібно ввімкнути Anonymous у Authentication.":"Помилка входу: "+e.code});
