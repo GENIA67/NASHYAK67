@@ -8,6 +8,7 @@ const describeError=e=>String(e?.code||e?.message||e||"невідома поми
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const render=()=>{
  const list=state?.players||[];
+ if(uid){const mine=Object.entries(claims).find(([i,v])=>v===uid&&i!=="0");selected=mine?Number(mine[0]):null}
  const ended=state?.stage==="awards"||state?.stage==="finished";
  const results=el("onlineResults");results.hidden=!ended||exited;
  if(ended&&!exited){
@@ -21,8 +22,7 @@ const render=()=>{
  el("onlineExit").hidden=state.stage!=="finished";
  }
  
- if(uid){const mine=Object.entries(claims).find(([i,v])=>v===uid&&i!=="0");selected=mine?Number(mine[0]):null}
- const confirmed=selected!==null&&selected<list.length&&claims[String(selected)]===uid;
+ const confirmed=selected!==null&&claims[String(selected)]===uid&&list.some((p,i)=>(p.index??i)===selected);
  choose.hidden=ended||exited||confirmed;document.querySelector(".scorecard").hidden=ended||exited||!confirmed;buzz.hidden=ended||exited||!confirmed;
  if(!confirmed){
    choices.hidden=pending!==null;confirm.hidden=pending===null;
@@ -30,7 +30,7 @@ const render=()=>{
    choices.querySelectorAll("button:not(:disabled)").forEach(b=>b.onclick=()=>{pending=Number(b.dataset.index);render()});
    el("onlineConfirmName").textContent=pending===null?"":"Закріпити за цим телефоном: "+(list[pending]?.name||"")+"?";
  }
- const p=list[selected];name.textContent=confirmed?p.name:"Гравець";score.textContent=(confirmed?(p?.score||0):0).toLocaleString("uk-UA");
+ const p=list.find((p,i)=>(p.index??i)===selected);name.textContent=confirmed?p.name:"Гравець";score.textContent=(confirmed?(p?.score||0):0).toLocaleString("uk-UA");
  const active=!exited&&!!state?.questionId&&state?.stage==="question",excluded=(state?.excluded||[]).includes(selected);
  buzz.disabled=!confirmed||!uid||!active||excluded||busy||!!(winner&&winner.questionId===state?.questionId);
  status.textContent=exited?"Ти вийшла з гри. Можна закрити цю вкладку.":ended?"":errorMessage?errorMessage:excluded&&active?"Ти вже відповідав на це запитання":active&&winner?.questionId===state?.questionId?(winner.uid===uid?"🏆 Ти натиснула першою!":"Першим натиснув: "+winner.name):!uid?"Підключення до Firebase…":!state?"Очікування кімнати":!list.length?"Ведуча ще не додала гравців":!confirmed?"Обери вільного гравця та підтвердь":!active?"Очікування запитання":pressed===state.questionId?"Кнопку натиснуто!":"Можна натискати!";
