@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101a35">
 <meta name="description" content="НАШЯК — власна вікторина у стилі телевізійного шоу">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
 <title>НАШЯК — ігрова студія</title>
 <style>
 :root{--bg:#0b1226;--panel:#142448;--panel2:#1c3566;--gold:#f4c44e;--text:#f7f8fc;--muted:#aebbd6;--good:#2eae79;--bad:#d85d65;--line:#304875}
@@ -27,11 +27,13 @@ main{max-width:1400px;margin:auto;padding:22px clamp(12px,3vw,34px) 60px}.screen
   <button class="tab" data-screen="edit">Редактор</button>
   <button class="tab" data-screen="players">Гравці</button>
   <button class="tab" data-screen="final">Фінал</button>
+  <button class="tab" id="showWinners">🏆 Підсумки</button>
  </nav>
 </header>
 <main>
 <section id="play" class="screen active">
- <div class="topline"><div><h1>Ігрове поле</h1><div class="muted">Обирай категорію та вартість питання</div></div><div class="tabs"><button class="secondary small" id="resetUsed">Скинути поле</button><button class="secondary small" id="fullscreen">На весь екран</button></div></div>
+ <div class="topline"><div><h1>Ігрове поле</h1><div class="muted">Обирай категорію та вартість питання</div></div><div class="tabs"><button class="secondary small" id="resetUsed">Скинути поле</button><button class="secondary small" id="openAudience">Відкрити екран гравців ↗</button><button class="secondary small" id="fullscreen">На весь екран</button></div></div>
+ <div id="playRounds" class="tabs" style="margin-bottom:14px"></div>
  <div id="scoreboard" class="players"></div>
  <div id="board" class="board-wrap"></div>
  <div class="footer-note">Порада: натисни на вартість питання, щоб відкрити його. Кнопка гравця фіксує першого, хто готовий відповідати.</div>
@@ -39,9 +41,12 @@ main{max-width:1400px;margin:auto;padding:22px clamp(12px,3vw,34px) 60px}.screen
 <section id="edit" class="screen">
  <div class="topline"><div><h1>Редактор гри</h1><div class="muted">Створюй власні категорії та питання</div></div><button id="addCategory">＋ Додати категорію</button></div>
  <div class="panel">
+  <div class="section-head"><h2>Раунди</h2><button id="addRound" class="small">＋ Додати раунд</button></div>
+  <div id="editRounds" class="tabs" style="margin-bottom:14px"></div>
+  <div class="formgrid"><div class="field"><label>Назва раунду</label><input id="roundName" placeholder="Наприклад, Раунд 1"></div><div class="field" style="align-content:end"><button id="deleteRound" class="danger small">Видалити цей раунд</button></div></div>
   <div class="formgrid">
    <div class="field"><label>Назва гри</label><input id="gameTitle" value="НАШЯК"></div>
-   <div class="field"><label>Бали за питання (через кому)</label><input id="values" value="100, 200, 300, 400, 500"></div>
+   <div class="field"><label>Бали за запитання в цьому раунді (через кому)</label><input id="values" value="100, 200, 300, 400, 500"></div>
   </div>
   <div id="editor"></div>
   <div class="tabs"><button id="saveGame">Зберегти гру</button><button class="secondary" id="exportGame">Експорт гри</button><label class="secondary small" style="display:inline-flex;align-items:center;border-radius:12px;cursor:pointer">Імпорт гри<input id="importGame" type="file" accept=".json,application/json" hidden></label></div>
@@ -54,26 +59,17 @@ main{max-width:1400px;margin:auto;padding:22px clamp(12px,3vw,34px) 60px}.screen
   <div id="playerEditor"></div>
  </div>
 </section>
-<section id="final" class="screen">
- <div class="topline"><div><h1>Фінальний раунд</h1><div class="muted">Гравці роблять ставки перед фінальним питанням</div></div></div>
- <div class="panel">
-  <div class="field"><label>Фінальна категорія</label><input id="finalCategory" placeholder="Наприклад, Велике кіно"></div>
-  <div class="field"><label>Фінальне питання</label><textarea id="finalQuestion" placeholder="Введи фінальне питання..."></textarea></div>
-  <div class="field"><label>Правильна відповідь</label><textarea id="finalAnswer" placeholder="Введи відповідь..."></textarea></div>
-  <div id="finalBets"></div>
-  <button id="startFinal">Почати фінал</button>
-  <div id="finalStage" class="hidden"></div>
- </div>
-</section>
+<section id="final" class="screen"><div class="topline"><h1>Фінальний раунд</h1></div><div class="panel"><p class="muted">Додай теми. Гравці по черзі прибирають теми, доки не залишиться одна. Ставки записуються на папері.</p><div class="field"><label>Початкова вартість фінального запитання (балів)</label><input id="finalValue" type="number" min="1" step="1" value="1600"></div><div class="field"><label>Штраф за неправильну відповідь (балів)</label><input id="finalPenalty" type="number" min="0" step="1" value="200"></div><div id="finalTopics"></div><div class="tabs"><button id="addFinalTopic">+ Додати тему</button><button id="showFinalTopics" class="secondary">Показати теми гравцям</button><button id="resetFinalTopics" class="secondary">Повернути всі теми</button></div><div id="finalLive"></div></div></section>
 </main>
 <div class="modal" id="questionModal"><div class="dialog">
  <div class="topline"><div><span class="pill" id="qCategory"></span><div class="question-points" id="qPoints"></div></div><button class="secondary small" id="closeQuestion">Закрити ✕</button></div>
  <div class="question-text" id="qText"></div><div id="qMedia"></div>
+ <div id="hostAnswerPreview" style="background:#122c38;border:1px solid #399b81;border-radius:12px;padding:12px 16px;margin:14px 0"><b style="color:#8ce9c2">🔒 Правильна відповідь · лише для ведучої</b><div id="hostAnswerContent" style="margin-top:8px;font-size:19px;font-weight:700"></div></div>
  <div class="answer" id="qAnswer"></div>
- <div class="tabs"><button id="revealAnswer">Показати відповідь</button><button class="secondary" id="resetBuzz">Скинути кнопку</button></div>
+ <div class="tabs" id="answerControls"><button id="revealAnswer">Показати відповідь</button><button class="secondary" id="resetBuzz">Скинути кнопку</button></div>
  <div class="status" id="buzzStatus">Хто перший натисне кнопку — той відповідає!</div>
- <div class="buzzers" id="buzzers"></div>
- <div class="tabs" style="margin-top:16px"><button class="good" id="markCorrect">Правильно · нарахувати бали</button><button class="danger" id="markWrong">Неправильно · зняти бали</button><button class="secondary" id="skipQuestion">Пропустити питання</button></div>
+ <div class="status" id="hostInstructions">Панель ведучої: обери гравця, який натиснув першим. Після неправильної відповіді обери наступного.</div><div class="buzzers" id="buzzers"></div>
+ <div class="tabs" id="scoreControls" style="margin-top:16px"><button class="good" id="markCorrect">Правильно · нарахувати бали</button><button class="danger" id="markWrong">Неправильно · зняти бали</button><button class="secondary" id="skipQuestion">Пропустити питання</button></div>
 </div></div>
 <script>
 const $=s=>document.querySelector(s);
@@ -84,36 +80,195 @@ const defaultGame={title:"НАШЯК",values:[100,200,300,400,500],players:[{nam
 {name:"МЕМИ",questions:[["Як називають коротке вірусне жартівливе зображення чи відео?","Мем",""],["Який звук часто пишуть для позначення сміху в чаті?","Ахаха / LOL",""],["Що зазвичай означає емодзі 💀 у мемах?","Сильний сміх або шок (залежить від контексту)",""],["Як називається жарт, зрозумілий лише своїм?","Внутрішній жарт",""],["Що таке POV у підписах до відео?","Point of view — точка зору",""]]},
 {name:"СПОРТ",questions:[["Скільки гравців однієї команди на полі у футболі?","11",""],["Скільки кілець на олімпійському символі?","П'ять",""],["У якому спорті використовують ракетку та волан?","Бадмінтон",""],["Яка довжина марафону приблизно?","42,195 км",""],["У якому спорті є шайба?","Хокей",""]]}
 ],used:{},final:{category:"",question:"",answer:""}};
-let game=load(), current=null, buzzed=null, finalStarted=false, finalWagers={};
-function load(){try{return JSON.parse(localStorage.getItem("nashyак-game"))||structuredClone(defaultGame)}catch(e){return JSON.parse(JSON.stringify(defaultGame))}}
-function persist(){localStorage.setItem("nashyак-game",JSON.stringify(game))}
+let game=load(), current=null, buzzed=null, finalStarted=false, finalWagers={}, wrongPlayers=new Set(), answerShown=false;
+function makeRound(name,values=[100,200,300,400,500]){return {name,values:[...values],categories:[{name:"НОВА ТЕМА",questions:values.map(()=>["","",""])}],used:{}}}
+function normalizeGame(data){
+ if(!data||!Array.isArray(data.players))throw Error("Некоректний файл гри");
+ if(!Array.isArray(data.rounds)){
+  if(!Array.isArray(data.categories))throw Error("Немає категорій");
+  data.rounds=[{name:"Раунд 1",values:data.values||[100,200,300,400,500],categories:data.categories,used:data.used||{}}];
+ }
+ if(!data.rounds.length) data.rounds=[makeRound("Раунд 1")];
+ data.rounds=data.rounds.map((r,i)=>({
+  name:String(r.name||"Раунд "+(i+1)),
+  values:Array.isArray(r.values)&&r.values.length?r.values:[100,200,300,400,500],
+  categories:Array.isArray(r.categories)&&r.categories.length?r.categories.map(c=>({name:c.name||"НОВА ТЕМА",questions:Array.isArray(c.questions)?c.questions:[]})):[{name:"НОВА ТЕМА",questions:[]}],
+  used:r.used&&typeof r.used==="object"?r.used:{}
+ }));
+ data.activeRound=Math.max(0,Math.min(data.rounds.length-1,Number(data.activeRound)||0));
+ data.final=data.final||{};if(!Array.isArray(data.final.topics))data.final.topics=data.final.category?[{name:data.final.category,question:data.final.question||"",answer:data.final.answer||"",media:"",answerImage:"",removed:false}]:[{name:"Тема 1",question:"",answer:"",media:"",answerImage:"",removed:false}];data.final.stage=data.final.stage||"setup";data.final.value=Number(data.final.value)||1600;data.final.misses=Number(data.final.misses)||0;data.final.penalty=Math.max(0,Math.floor(Number(data.final.penalty)||0));
+ const r=data.rounds[data.activeRound];
+ data.values=r.values;data.categories=r.categories;data.used=r.used;
+ return data;
+}
+function load(){try{return normalizeGame(JSON.parse(localStorage.getItem("nashyак-preview-game"))||structuredClone(defaultGame))}catch(e){return normalizeGame(JSON.parse(JSON.stringify(defaultGame)))}}
+function syncRound(){const r=game.rounds[game.activeRound];r.values=game.values;r.categories=game.categories;r.used=game.used}
+function persist(){syncRound();localStorage.setItem("nashyак-preview-game",JSON.stringify(game))}
+function switchRound(index){if(index<0||index>=game.rounds.length)return;saveRoundSettings();syncRound();game.activeRound=index;const r=game.rounds[index];game.values=r.values;game.categories=r.categories;game.used=r.used;current=null;$("#questionModal").classList.remove("open");persist();renderAll();publishAudience("board")}
+function saveRoundSettings(){const el=$("#values");if(!el)return;const vals=parsePoints(el.value);if(vals){game.values=vals;game.rounds[game.activeRound].values=vals}const name=$("#roundName")?.value.trim();if(name)game.rounds[game.activeRound].name=name}
+function renderRounds(){
+ const buttons=game.rounds.map((r,i)=>`<button class="small ${i===game.activeRound?'':'secondary'}" data-round="${i}">${esc(r.name)}</button>`).join("");
+ for(const id of ["playRounds","editRounds"]){const el=$("#"+id);el.innerHTML=buttons+(id==="playRounds"?'<button class="small secondary" id="playFinalTab">Фінал →</button>':"");el.querySelectorAll("[data-round]").forEach(b=>b.onclick=()=>switchRound(+b.dataset.round))}
+ $("#playFinalTab")?.addEventListener("click",()=>document.querySelector('[data-screen="final"]').click());
+ $("#roundName").value=game.rounds[game.activeRound].name;
+ $("#deleteRound").disabled=game.rounds.length<=1;
+}
+
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function pointsFor(c){return game.values}
+function parsePoints(value){const parts=value.split(",").map(x=>x.trim());if(!parts.length||parts.some(x=>!/^\d+$/.test(x)||Number(x)<=0||!Number.isSafeInteger(Number(x))))return null;return parts.map(Number)}
+const SCREEN_KEY="nashyak-preview-audience-v1";
+function audienceState(stage="board"){
+ const r=game.rounds[game.activeRound];
+ return {stage,title:game.title,round:r.name,players:game.players.map(p=>({name:p.name,score:p.score})),
+  categories:game.categories.map((c,ci)=>({name:c.name,tiles:game.values.map((v,qi)=>({value:v,used:!!game.used[ci+"-"+qi]}))})),
+  question:current?{instanceId:current.instanceId,category:game.categories[current.ci].name,points:current.value,text:game.categories[current.ci].questions[current.qi]?.[0]||"",answer:game.categories[current.ci].questions[current.qi]?.[1]||"",answerImage:game.categories[current.ci].questions[current.qi]?.[3]||"",modifier:!!game.categories[current.ci].questions[current.qi]?.[4],media:game.categories[current.ci].questions[current.qi]?.[2]||"",shown:answerShown}:null,
+  responding:buzzed===null?null:game.players[buzzed]?.name||null};
+}
+function publishAudience(stage){if(document.querySelector("#final.screen.active")&&game.final.stage!=="setup"){publishFinal();return}try{localStorage.setItem(SCREEN_KEY,JSON.stringify(audienceState(stage)))}catch(e){alert("Фото завелике для передачі на екран гравців. Спробуй менше зображення (до 200 КБ).")}}
 function renderScores(){const el=$("#scoreboard");el.innerHTML=game.players.map((p,i)=>`<div class="player"><div class="name">${esc(p.name)}</div><div class="score">${p.score}</div><div class="player-actions"><button class="small good" data-add="${i}">+100</button><button class="small danger" data-sub="${i}">−100</button></div></div>`).join("");el.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>changeScore(+b.dataset.add,100));el.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>changeScore(+b.dataset.sub,-100))}
-function changeScore(i,n){if(!game.players[i])return;game.players[i].score+=n;persist();renderScores();renderPlayerEditor()}
-function renderBoard(){const el=$("#board");el.innerHTML=`<div class="board" style="--cols:${game.categories.length}">${game.categories.map((c,ci)=>`<div class="board-col"><div class="category">${esc(c.name)}</div>${game.values.map((v,qi)=>{const key=ci+"-"+qi,used=!!game.used[key];return `<button class="tile ${used?'used':''}" ${used?'disabled':''} data-q="${key}">${used?'✓':v}</button>`}).join("")}</div>`).join("")}</div>`;el.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>openQuestion(b.dataset.q))}
-function openQuestion(key){const [ci,qi]=key.split("-").map(Number),c=game.categories[ci],q=c?.questions[qi];if(!q)return;current={key,ci,qi,value:game.values[qi]||100};buzzed=null;$("#qCategory").textContent=c.name;$("#qPoints").textContent=current.value+" балів";$("#qText").textContent=q[0];$("#qAnswer").textContent="Відповідь: "+q[1];$("#qAnswer").classList.remove("show");$("#revealAnswer").textContent="Показати відповідь";$("#qMedia").innerHTML=q[2]?mediaHTML(q[2]):"";renderBuzzers();$("#buzzStatus").textContent="Хто перший натисне кнопку — той відповідає!";$("#questionModal").classList.add("open")}
-function mediaHTML(url){if(/\.(mp4|webm)(\?|$)/i.test(url))return `<video class="media" controls src="${esc(url)}"></video>`;if(/\.(mp3|wav|ogg)(\?|$)/i.test(url))return `<audio controls src="${esc(url)}"></audio>`;if(/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url))return `<img class="media" src="${esc(url)}" alt="Ілюстрація до питання">`;return `<p><a style="color:#f4c44e" target="_blank" rel="noopener" href="${esc(url)}">Відкрити матеріал до питання ↗</a></p>`}
-function renderBuzzers(){const el=$("#buzzers");el.innerHTML=game.players.map((p,i)=>`<button class="buzz ${buzzed!==null?'locked':''}" data-buzz="${i}" ${buzzed!==null?'disabled':''}>${esc(p.name)}<br><small>Натиснути</small></button>`).join("");el.querySelectorAll("[data-buzz]").forEach(b=>b.onclick=()=>{if(buzzed!==null)return;buzzed=+b.dataset.buzz;$("#buzzStatus").textContent="Відповідає: "+game.players[buzzed].name;renderBuzzers()})}
-function finishQuestion(correct){if(!current)return;game.used[current.key]=true;if(buzzed!==null){changeScore(buzzed,correct?current.value:-current.value)}persist();$("#questionModal").classList.remove("open");current=null;renderBoard()}
-function renderEditor(){const el=$("#editor");el.innerHTML=game.categories.map((c,ci)=>`<div class="editor-cat"><div class="formgrid"><div class="field"><label>Категорія ${ci+1}</label><input data-cat="${ci}" value="${esc(c.name)}"></div><div class="field" style="align-content:end"><button class="danger small" data-delcat="${ci}">Видалити категорію</button></div></div>${game.values.map((v,qi)=>{let q=c.questions[qi]||["","",""];return `<div class="editor-cat" style="background:#0d1b35"><div class="qrow"><span class="pill">${v} балів</span><input data-question="${ci}-${qi}" value="${esc(q[0])}" placeholder="Текст питання"><button class="secondary small" data-expand="${ci}-${qi}">Деталі</button></div><div class="formgrid hidden" id="detail-${ci}-${qi}"><div class="field"><label>Правильна відповідь</label><input data-answer="${ci}-${qi}" value="${esc(q[1])}" placeholder="Відповідь"></div><div class="field"><label>Посилання на фото / аудіо / відео</label><input data-media="${ci}-${qi}" value="${esc(q[2])}" placeholder="https://..."></div></div></div>`}).join("")}</div>`).join("");el.querySelectorAll("[data-cat]").forEach(i=>i.onchange=()=>{game.categories[+i.dataset.cat].name=i.value;persist();renderBoard()});el.querySelectorAll("[data-question]").forEach(i=>i.onchange=()=>{let [c,q]=i.dataset.question.split("-").map(Number);game.categories[c].questions[q]??=["","",""];game.categories[c].questions[q][0]=i.value;persist()});el.querySelectorAll("[data-answer]").forEach(i=>i.onchange=()=>{let [c,q]=i.dataset.answer.split("-").map(Number);game.categories[c].questions[q]??=["","",""];game.categories[c].questions[q][1]=i.value;persist()});el.querySelectorAll("[data-media]").forEach(i=>i.onchange=()=>{let [c,q]=i.dataset.media.split("-").map(Number);game.categories[c].questions[q]??=["","",""];game.categories[c].questions[q][2]=i.value;persist()});el.querySelectorAll("[data-expand]").forEach(b=>b.onclick=()=>$("#detail-"+b.dataset.expand).classList.toggle("hidden"));el.querySelectorAll("[data-delcat]").forEach(b=>b.onclick=()=>{if(game.categories.length<=1)return alert("Має залишитися хоча б одна категорія.");game.categories.splice(+b.dataset.delcat,1);game.used={};persist();renderAll()})}
+function changeScore(i,n){if(!game.players[i])return;game.players[i].score+=n;persist();renderScores();renderPlayerEditor();publishAudience(current?"question":"board")}
+function renderBoard(){const el=$("#board");el.innerHTML=`<div class="board" style="--cols:${game.categories.length}">${game.categories.map((c,ci)=>`<div class="board-col"><div class="category">${esc(c.name)}</div>${pointsFor(c).map((v,qi)=>{const key=ci+"-"+qi,used=!!game.used[key];return `<button class="tile ${used?'used':''}" ${used?'disabled':''} data-q="${key}">${used?'✓':v}</button>`}).join("")}</div>`).join("")}</div>`;el.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>openQuestion(b.dataset.q))}
+function openQuestion(key){
+ const [ci,qi]=key.split("-").map(Number),c=game.categories[ci],q=c?.questions[qi];if(!q)return;
+ current={key,ci,qi,value:game.values[qi]||100,instanceId:Date.now()+"-"+Math.random().toString(36).slice(2)};buzzed=null;wrongPlayers=new Set();answerShown=false;
+ $("#qCategory").textContent=c.name;$("#qPoints").textContent=current.value+" балів";
+ const modifier=!!q[4];
+ $("#answerControls").style.display=modifier?"none":"flex";
+ $("#hostInstructions").style.display=modifier?"none":"block";
+ $("#buzzers").style.display=modifier?"none":"flex";
+ $("#scoreControls").style.display=modifier?"none":"flex";
+ $("#hostAnswerPreview").style.display=modifier?"none":"block";$("#hostAnswerContent").innerHTML=(q[1]?`<div>${esc(q[1])}</div>`:`<div style="color:#aebbd6">Відповідь не заповнено в редакторі.</div>`)+(q[3]?`<img src="${q[3]}" alt="Зображення правильної відповіді для ведучої" style="display:block;max-width:100%;max-height:30vh;object-fit:contain;border-radius:10px;margin-top:10px">`:"");
+ $("#qText").textContent=q[0];$("#qAnswer").innerHTML=(q[1]?`<div>${esc(q[1])}</div>`:"")+(q[3]?`<img src="${q[3]}" alt="Фото правильної відповіді" style="max-width:100%;max-height:40vh;object-fit:contain;border-radius:12px;margin-top:12px">`:"");
+ $("#qAnswer").classList.remove("show");$("#revealAnswer").textContent="Показати відповідь";
+ $("#qMedia").innerHTML=!modifier&&q[2]?mediaHTML(q[2]):"";
+ $("#buzzStatus").textContent=modifier?"Модифікатор: гравець, який обрав клітинку, отримує зазначений ефект. Зміни рахунок вручну на панелі гравців і закрий клітинку.":"Очікуємо, хто натисне кнопку.";
+ $("#questionModal").classList.add("open");if(!modifier)renderBuzzers();publishAudience("question");
+}
+function mediaHTML(url){if(/^data:image\/(png|jpeg|webp|gif);base64,/i.test(url))return `<img class="media" src="${url}" alt="Ілюстрація до питання">`;if(/\.(mp4|webm)(\?|$)/i.test(url))return `<video class="media" controls src="${esc(url)}"></video>`;if(/\.(mp3|wav|ogg)(\?|$)/i.test(url))return `<audio controls src="${esc(url)}"></audio>`;if(/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url))return `<img class="media" src="${esc(url)}" alt="Ілюстрація до питання">`;return `<p><a style="color:#f4c44e" target="_blank" rel="noopener" href="${esc(url)}">Відкрити матеріал до питання ↗</a></p>`}
+function renderBuzzers(){
+ const el=$("#buzzers");
+ el.innerHTML=game.players.map((p,i)=>`<button class="buzz ${wrongPlayers.has(i)?'locked':''}" data-buzz="${i}" ${buzzed!==null||wrongPlayers.has(i)||answerShown?'disabled':''}>${esc(p.name)}<br><small>${wrongPlayers.has(i)?'Уже відповідав':buzzed===i?'Відповідає':'Обрати'}</small></button>`).join("");
+ el.querySelectorAll("[data-buzz]").forEach(b=>b.onclick=()=>{
+  if(buzzed!==null||answerShown)return;
+  buzzed=+b.dataset.buzz;
+  $("#buzzStatus").textContent="Відповідає: "+game.players[buzzed].name;
+  renderBuzzers();publishAudience("question");
+ });
+ $("#markCorrect").disabled=buzzed===null||answerShown;
+ $("#markWrong").disabled=buzzed===null||answerShown;
+}
+function finishQuestion(correct){
+ if(!current||buzzed===null||answerShown)return;
+ const i=buzzed;
+ changeScore(i,correct?current.value:-current.value);
+ if(correct){answerShown=true;$("#qAnswer").classList.add("show");$("#revealAnswer").textContent="Сховати відповідь";$("#buzzStatus").textContent="Правильно! +"+current.value+" балів. Відповідь показана на екрані гравців.";renderBuzzers();publishAudience("question");return}
+ wrongPlayers.add(i);buzzed=null;
+ $("#buzzStatus").textContent="Неправильно: −"+current.value+" балів. Інші гравці можуть відповідати.";
+ renderBuzzers();publishAudience("question");
+}
+function completeQuestion(){
+ if(!current)return;
+ if(buzzed!==null&&!answerShown&&!confirm("Гравець уже натиснув кнопку, але відповідь не оцінено. Завершити запитання без зміни балів?"))return;
+ game.used[current.key]=true;persist();current=null;buzzed=null;answerShown=false;
+ $("#questionModal").classList.remove("open");renderBoard();publishAudience("board");
+}
+
+function renderEditor(){const el=$("#editor");el.innerHTML=game.categories.map((c,ci)=>`<div class="editor-cat"><div class="formgrid"><div class="field"><label>Категорія ${ci+1}</label><input data-cat="${ci}" value="${esc(c.name)}"></div><div class="field" style="align-content:end"><button class="danger small" data-delcat="${ci}">Видалити категорію</button></div></div>${pointsFor(c).map((v,qi)=>{let q=c.questions[qi]||["","",""];return `<div class="editor-cat" style="background:#0d1b35"><div class="qrow"><span class="pill">${v} балів</span><select data-kind="${ci}-${qi}" aria-label="Тип клітинки"><option value="question" ${q[4]?"":"selected"}>Запитання</option><option value="modifier" ${q[4]?"selected":""}>Модифікатор</option></select><input data-question="${ci}-${qi}" value="${esc(q[0])}" placeholder="${q[4]?"Текст модифікатора":"Текст питання"}"><button class="secondary small" data-expand="${ci}-${qi}">Деталі</button></div><div class="formgrid hidden" id="detail-${ci}-${qi}" ${q[4]?"style=\"display:none\"":""}><div class="field"><label>Правильна відповідь</label><input data-answer="${ci}-${qi}" value="${esc(q[1])}" placeholder="Відповідь"></div><div class="field"><label>Фото правильної відповіді</label><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-answer-upload="${ci}-${qi}"><small>Можна додати фото разом із текстом або замість тексту. До 1,5 МБ.</small>${q[3]?`<div class="tabs"><img src="${q[3]}" alt="Фото відповіді" style="max-width:130px;max-height:100px;object-fit:contain"><button class="danger small" data-answer-remove="${ci}-${qi}">Видалити фото відповіді</button></div>`:""}</div><div class="field"><label>Фото до запитання (з комп’ютера)</label><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload="${ci}-${qi}"><small>Рекомендовано фото до 500 КБ. Зображення зберігається в браузері.</small></div></div></div>`}).join("")}</div>`).join("");el.querySelectorAll("[data-cat]").forEach(i=>i.onchange=()=>{game.categories[+i.dataset.cat].name=i.value;persist();renderBoard()});el.querySelectorAll("[data-kind]").forEach(i=>i.onchange=()=>{const [c,q]=i.dataset.kind.split("-").map(Number);game.categories[c].questions[q]??=["","",""];game.categories[c].questions[q][4]=i.value==="modifier";persist();renderEditor()});el.querySelectorAll("[data-question]").forEach(i=>i.onchange=()=>{let [c,q]=i.dataset.question.split("-").map(Number);game.categories[c].questions[q]??=["","",""];game.categories[c].questions[q][0]=i.value;persist()});el.querySelectorAll("[data-answer]").forEach(i=>i.onchange=()=>{let [c,q]=i.dataset.answer.split("-").map(Number);game.categories[c].questions[q]??=["","",""];game.categories[c].questions[q][1]=i.value;persist()});el.querySelectorAll("[data-answer-upload]").forEach(input=>input.onchange=()=>{
+ const file=input.files?.[0];if(!file)return;
+ if(!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type))return alert("Обери фото JPG, PNG, WEBP або GIF.");
+ if(file.size>1500000)return alert("Фото завелике. Обери зображення до 1,5 МБ.");
+ const [ci,qi]=input.dataset.answerUpload.split("-").map(Number);
+ const reader=new FileReader();
+ reader.onload=()=>{const q=game.categories[ci]?.questions[qi];if(!q)return;q[3]=reader.result;try{persist();renderEditor();alert("Фото правильної відповіді додано!")}catch(e){q[3]="";alert("Не вистачає місця в пам’яті браузера. Спробуй менше фото.");}};
+ reader.onerror=()=>alert("Не вдалося прочитати фото.");
+ reader.readAsDataURL(file);
+});
+el.querySelectorAll("[data-answer-remove]").forEach(b=>b.onclick=()=>{
+ const [ci,qi]=b.dataset.answerRemove.split("-").map(Number);
+ const q=game.categories[ci]?.questions[qi];if(!q)return;q[3]="";persist();renderEditor();
+});
+el.querySelectorAll("[data-upload]").forEach(input=>input.onchange=async()=>{
+ const file=input.files?.[0];if(!file)return;
+ if(!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type))return alert("Обери фото JPG, PNG, WEBP або GIF.");
+ if(file.size>1500000)return alert("Фото завелике. Обери зображення до 1,5 МБ.");
+ const [ci,qi]=input.dataset.upload.split("-").map(Number);
+ const reader=new FileReader();
+ reader.onload=()=>{const q=game.categories[ci]?.questions[qi];if(!q)return;q[2]=reader.result;try{persist();renderEditor();alert("Фото додано до запитання!")}catch(e){alert("Не вистачає місця в пам’яті браузера. Спробуй менше фото або посилання.");}};
+ reader.onerror=()=>alert("Не вдалося прочитати фото.");
+ reader.readAsDataURL(file);
+});el.querySelectorAll("[data-expand]").forEach(b=>b.onclick=()=>$("#detail-"+b.dataset.expand).classList.toggle("hidden"));el.querySelectorAll("[data-delcat]").forEach(b=>b.onclick=()=>{if(game.categories.length<=1)return alert("Має залишитися хоча б одна категорія.");game.categories.splice(+b.dataset.delcat,1);game.used={};persist();renderAll()})}
 function renderPlayerEditor(){$("#playerEditor").innerHTML=game.players.map((p,i)=>`<div class="editor-cat formgrid"><div class="field"><label>Ім'я</label><input data-pname="${i}" value="${esc(p.name)}"></div><div class="field"><label>Рахунок</label><input type="number" data-pscore="${i}" value="${p.score}"></div><div class="field" style="align-content:end"><button class="danger small" data-pdel="${i}">Видалити</button></div></div>`).join("");$("#playerEditor").querySelectorAll("[data-pname]").forEach(i=>i.onchange=()=>{game.players[+i.dataset.pname].name=i.value;persist();renderAll()});$("#playerEditor").querySelectorAll("[data-pscore]").forEach(i=>i.onchange=()=>{game.players[+i.dataset.pscore].score=Number(i.value)||0;persist();renderAll()});$("#playerEditor").querySelectorAll("[data-pdel]").forEach(b=>b.onclick=()=>{if(game.players.length<=1)return alert("Має залишитися хоча б один гравець.");game.players.splice(+b.dataset.pdel,1);persist();renderAll()})}
-function renderFinalBets(){$("#finalBets").innerHTML=game.players.map((p,i)=>`<div class="editor-cat formgrid"><div><b>${esc(p.name)}</b><div class="muted">Баланс: ${p.score}</div></div><div class="field"><label>Ставка (0 — ${Math.max(0,p.score)})</label><input type="number" min="0" max="${Math.max(0,p.score)}" value="0" data-bet="${i}"></div></div>`).join("")}
-function renderAll(){document.title=game.title+" — НАШЯК";$("#gameTitle").value=game.title;$("#values").value=game.values.join(", ");renderScores();renderBoard();renderEditor();renderPlayerEditor();$("#finalCategory").value=game.final.category||"";$("#finalQuestion").value=game.final.question||"";$("#finalAnswer").value=game.final.answer||"";renderFinalBets()}
-document.querySelectorAll("[data-screen]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t===b));document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===b.dataset.screen));if(b.dataset.screen==="final")renderFinalBets()});
+function finalTopics(){return game.final.topics}
+function publishFinal(){const f=game.final;const remaining=finalTopics().filter(t=>!t.removed);const t=remaining[0];try{localStorage.setItem(SCREEN_KEY,JSON.stringify({stage:"final",finalStage:f.stage,finalValue:Math.max(1,Math.floor(f.value/Math.pow(2,Math.min(2,f.misses||0)))),finalAttempt:Math.min(3,(f.misses||0)+1),topics:remaining.map(x=>x.name),question:f.stage==="question"||f.stage==="answer"?{category:t?.name||"",text:t?.question||"",media:t?.media||"",answer:t?.answer||"",answerImage:t?.answerImage||"",shown:f.stage==="answer"}:null,title:game.title,round:"ФІНАЛ",players:game.players.map(p=>({name:p.name,score:p.score}))}))}catch(e){alert("Завелике фото для передавання на екран гравців. Спробуй зменшити його.")}}
+function renderFinal(){
+ const topics=finalTopics();const penaltyInput=$("#finalPenalty");if(penaltyInput){penaltyInput.value=game.final.penalty;penaltyInput.onchange=()=>{game.final.penalty=Math.max(0,Math.floor(Number(penaltyInput.value)||0));persist();renderFinalLive()}}const valueInput=$("#finalValue");if(valueInput){valueInput.value=game.final.value;valueInput.onchange=()=>{game.final.value=Math.max(1,Math.floor(Number(valueInput.value)||1600));persist();renderFinalLive();publishFinal()}}
+ $("#finalTopics").innerHTML=topics.map((t,i)=>`<div class="editor-cat"><div class="qrow"><span class="pill">Тема ${i+1}</span><input data-ft-name="${i}" value="${esc(t.name)}" placeholder="Назва теми"><button class="secondary small" data-ft-details="${i}">Деталі</button><button class="danger small" data-ft-delete="${i}">Видалити</button></div><div class="formgrid hidden" id="ft-details-${i}"><div class="field"><label>Текст запитання</label><textarea data-ft-question="${i}">${esc(t.question)}</textarea></div><div class="field"><label>Правильна відповідь</label><textarea data-ft-answer="${i}">${esc(t.answer)}</textarea></div><div class="field"><label>Фото запитання</label><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-ft-upload="${i}-media">${t.media?'<small>Фото додано</small>':''}</div><div class="field"><label>Фото правильної відповіді</label><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-ft-upload="${i}-answerImage">${t.answerImage?'<small>Фото додано</small>':''}</div></div></div>`).join("");
+ for(const field of ["name","question","answer"])$("#finalTopics").querySelectorAll("[data-ft-"+field+"]").forEach(el=>el.onchange=()=>{const i=+el.dataset["ft"+field[0].toUpperCase()+field.slice(1)];topics[i][field]=el.value;persist();if(game.final.stage==="topics")publishFinal()});
+ $("#finalTopics").querySelectorAll("[data-ft-details]").forEach(b=>b.onclick=()=>$("#ft-details-"+b.dataset.ftDetails).classList.toggle("hidden"));
+ $("#finalTopics").querySelectorAll("[data-ft-delete]").forEach(b=>b.onclick=()=>{if(topics.length===1)return alert("Потрібна хоча б одна тема.");if(!confirm("Видалити тему?"))return;topics.splice(+b.dataset.ftDelete,1);persist();renderFinal();if(game.final.stage==="topics")publishFinal()});
+ $("#finalTopics").querySelectorAll("[data-ft-upload]").forEach(input=>input.onchange=()=>{const file=input.files?.[0];if(!file)return;if(!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type)||file.size>1500000)return alert("Обери фото JPG, PNG, WEBP або GIF до 1,5 МБ.");const [i,key]=input.dataset.ftUpload.split("-");const reader=new FileReader();reader.onload=()=>{topics[+i][key]=reader.result;try{persist();renderFinal();alert("Фото додано!")}catch(e){topics[+i][key]="";alert("Недостатньо пам’яті. Зменши фото.")}};reader.readAsDataURL(file)});
+ renderFinalLive();
+}
+function renderFinalLive(){
+ const f=game.final,remaining=finalTopics().map((t,i)=>({...t,i})).filter(t=>!t.removed);
+ $("#finalLive").innerHTML=`<h2>Керування фіналом</h2><div class="status">Залишилось тем: ${remaining.length}. ${f.stage==="setup"?"Натисни «Показати теми гравцям».":f.stage==="topics"?"Прибирай теми за вибором гравців.":"Фінальне запитання"}</div>`+
+ (f.stage==="topics"?remaining.map(t=>`<div class="editor-cat"><b>${esc(t.name)}</b> <button class="danger small" data-ft-remove="${t.i}" ${remaining.length===1?"disabled":""}>Прибрати тему</button></div>`).join(""):"")+
+ (remaining.length===1&&f.stage==="topics"?'<button id="openFinalQuestion" class="good">Відкрити фінальне запитання</button>':"")+
+ (["question","answer"].includes(f.stage)?`<div class="editor-cat"><h3>Поточна вартість: <span id="finalCurrentValue">${Math.max(1,Math.floor(f.value/Math.pow(2,Math.min(2,f.misses||0))))}</span> балів · Спроба ${Math.min(3,(f.misses||0)+1)} із 3</h3><div id="finalWinnerMessage" class="status">Очікуємо натискання гравця…</div><div class="tabs"><button id="finalCorrect" class="good" disabled>Правильно · нарахувати бали</button><button id="finalWrong" class="danger" disabled>Неправильно · наступна спроба</button></div><h3>${esc(remaining[0]?.name||"")}</h3><p>${esc(remaining[0]?.question||"")}</p><div class="tabs">${f.stage==="question"?'<button id="revealFinalAnswer">Показати відповідь</button>':''}<button class="secondary" id="backFinalTopics">Повернутись до тем</button></div></div><p class="muted">Штраф за неправильну відповідь: ${f.penalty||0} балів. Усього три спроби для всіх гравців.</p>`:"");
+ $("#finalLive").querySelectorAll("[data-ft-remove]").forEach(b=>b.onclick=()=>{if(remaining.length<=1)return;finalTopics()[+b.dataset.ftRemove].removed=true;persist();renderFinalLive();publishFinal()});
+ const open=$("#openFinalQuestion");if(open)open.onclick=()=>{f.stage="question";f.misses=0;persist();renderFinalLive();publishFinal()};
+ const reveal=$("#revealFinalAnswer");if(reveal)reveal.onclick=()=>{f.stage="answer";persist();renderFinalLive();publishFinal()};
+ window.dispatchEvent(new Event("nashyak-final-render"));
+ const back=$("#backFinalTopics");if(back)back.onclick=()=>{f.stage="topics";persist();renderFinalLive();publishFinal()};
+}
+window.addEventListener("nashyak-final-score",e=>{const {index,points}=e.detail;if(!game.players[index]||game.final.stage!=="question")return;changeScore(index,points);game.final.stage="answer";persist();renderFinalLive();publishFinal()});
+window.addEventListener("nashyak-final-miss",e=>{if(game.final.stage!=="question")return;const i=e.detail?.index;if(!game.players[i])return;const penalty=game.final.penalty||0;if(penalty)changeScore(i,-penalty);game.final.misses=(game.final.misses||0)+1;if(game.final.misses>=3)game.final.stage="answer";persist();renderFinalLive();publishFinal()});
+function renderAll(){renderRounds();document.title=game.title+" — НАШЯК";$("#gameTitle").value=game.title;$("#values").value=game.values.join(", ");renderScores();renderBoard();renderEditor();renderPlayerEditor();renderFinal()}
+document.querySelectorAll("[data-screen]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t===b));document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===b.dataset.screen));if(b.dataset.screen==="final")renderFinal()});
+$("#addRound").onclick=()=>{
+ saveRoundSettings();persist();
+ const name="Раунд "+(game.rounds.length+1);
+ game.rounds.push(makeRound(name));
+ switchRound(game.rounds.length-1);
+};
+$("#deleteRound").onclick=()=>{
+ if(game.rounds.length<=1)return alert("Має залишитися хоча б один раунд.");
+ const name=game.rounds[game.activeRound].name;
+ if(!confirm('Видалити раунд "'+name+'" разом з усіма його темами та питаннями?'))return;
+ syncRound();
+ game.rounds.splice(game.activeRound,1);
+ game.activeRound=Math.min(game.activeRound,game.rounds.length-1);
+ const r=game.rounds[game.activeRound];game.values=r.values;game.categories=r.categories;game.used=r.used;
+ persist();renderAll();
+};
+$("#roundName").onchange=()=>{game.rounds[game.activeRound].name=$("#roundName").value.trim()||"Раунд "+(game.activeRound+1);persist();renderRounds()};
 $("#addCategory").onclick=()=>{game.categories.push({name:"НОВА КАТЕГОРІЯ",questions:game.values.map(()=>["","",""])});persist();renderAll()};
 $("#addPlayer").onclick=()=>{let name=$("#newPlayer").value.trim();if(!name)return;game.players.push({name,score:0});$("#newPlayer").value="";persist();renderAll()};
-$("#saveGame").onclick=()=>{game.title=$("#gameTitle").value||"НАШЯК";let vals=$("#values").value.split(",").map(x=>parseInt(x.trim(),10)).filter(x=>Number.isFinite(x)&&x>0);if(!vals.length)return alert("Вкажи хоча б одне значення балів.");game.values=vals;game.categories.forEach(c=>{while(c.questions.length<vals.length)c.questions.push(["","",""]);c.questions=c.questions.slice(0,vals.length)});game.used={};persist();renderAll();alert("Гру збережено на цьому пристрої!")};
-$("#exportGame").onclick=()=>{const blob=new Blob([JSON.stringify(game,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="nashyак-game.json";a.click();URL.revokeObjectURL(a.href)};
-$("#importGame").onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());if(!data.categories||!data.players)throw 0;game=data;persist();renderAll();alert("Гру імпортовано!")}catch(err){alert("Не вдалося прочитати файл гри.")}e.target.value=""};
-$("#resetUsed").onclick=()=>{game.used={};persist();renderBoard()};
-$("#closeQuestion").onclick=()=>$("#questionModal").classList.remove("open");
-$("#revealAnswer").onclick=()=>{$("#qAnswer").classList.toggle("show");$("#revealAnswer").textContent=$("#qAnswer").classList.contains("show")?"Сховати відповідь":"Показати відповідь"};
-$("#resetBuzz").onclick=()=>{buzzed=null;$("#buzzStatus").textContent="Кнопки скинуто. Хто перший натисне?";renderBuzzers()};
-$("#markCorrect").onclick=()=>finishQuestion(true);$("#markWrong").onclick=()=>finishQuestion(false);$("#skipQuestion").onclick=()=>finishQuestion(false);
+$("#saveGame").onclick=()=>{game.title=$("#gameTitle").value||"НАШЯК";let vals=parsePoints($("#values").value);if(!vals.length)return alert("Вкажи хоча б одне значення балів.");game.values=vals;game.rounds[game.activeRound].values=vals;game.categories.forEach(c=>{delete c.values;while(c.questions.length<vals.length)c.questions.push(["","",""])});persist();renderAll();alert("Гру збережено на цьому пристрої!")};
+$("#exportGame").onclick=()=>{syncRound();const blob=new Blob([JSON.stringify(game,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="nashyак-game.json";a.click();URL.revokeObjectURL(a.href)};
+$("#importGame").onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());game=normalizeGame(data);persist();renderAll();alert("Гру імпортовано!")}catch(err){alert("Не вдалося прочитати файл гри.")}e.target.value=""};
+$("#resetUsed").onclick=()=>{game.used={};persist();renderBoard();publishAudience("board")};
+$("#openAudience").onclick=()=>{publishAudience(current?"question":"board");window.open("./screen-v2.html","nashyak-audience-v2")};
+$("#closeQuestion").onclick=()=>completeQuestion();
+$("#revealAnswer").onclick=()=>{
+ if(!current)return;
+ answerShown=!answerShown;
+ $("#qAnswer").classList.toggle("show",answerShown);
+ $("#revealAnswer").textContent=answerShown?"Сховати відповідь":"Показати відповідь";
+ renderBuzzers();publishAudience("question");
+};
+$("#resetBuzz").onclick=()=>{buzzed=null;$("#buzzStatus").textContent="Очікуємо наступного гравця.";renderBuzzers();publishAudience("question")};
+$("#markCorrect").onclick=()=>finishQuestion(true);$("#markWrong").onclick=()=>finishQuestion(false);$("#skipQuestion").onclick=()=>completeQuestion();
 $("#fullscreen").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
-$("#startFinal").onclick=()=>{game.final={category:$("#finalCategory").value,question:$("#finalQuestion").value,answer:$("#finalAnswer").value};persist();renderFinalBets();$("#finalStage").classList.remove("hidden");$("#finalStage").innerHTML=`<div class="status"><b>${esc(game.final.category)}</b><p style="font-size:22px">${esc(game.final.question)}</p><button id="showFinalAnswer" class="secondary">Показати відповідь</button><div id="finalAnswerShow" class="answer">${esc(game.final.answer)}</div></div><h2>Результати ставок</h2><div id="finalResult"></div><button id="applyFinal" class="good">Застосувати результати фіналу</button>`;$("#showFinalAnswer").onclick=()=>$("#finalAnswerShow").classList.toggle("show");$("#finalResult").innerHTML=game.players.map((p,i)=>`<div class="editor-cat"><b>${esc(p.name)}</b> · ставка ${Math.max(0,Math.min(p.score,Number($(`[data-bet="${i}"]`)?.value)||0))} балів <div class="tabs"><button class="small good" data-fwin="${i}">Відповів правильно</button><button class="small danger" data-flose="${i}">Не відповів</button></div></div>`).join("");let outcomes={};$("#finalResult").querySelectorAll("[data-fwin]").forEach(b=>b.onclick=()=>{outcomes[b.dataset.fwin]=true;b.textContent="Правильно ✓"});$("#finalResult").querySelectorAll("[data-flose]").forEach(b=>b.onclick=()=>{outcomes[b.dataset.flose]=false;b.textContent="Неправильно ✓"});$("#applyFinal").onclick=()=>{game.players.forEach((p,i)=>{let bet=Math.max(0,Math.min(p.score,Number($(`[data-bet="${i}"]`)?.value)||0));if(outcomes[i]===true)p.score+=bet;else if(outcomes[i]===false)p.score-=bet});persist();renderAll();alert("Результати фіналу застосовано!")}};
-if("serviceWorker" in navigator && location.protocol!=="file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
-renderAll();
+$("#addFinalTopic").onclick=()=>{finalTopics().push({name:"Нова тема",question:"",answer:"",media:"",answerImage:"",removed:false});persist();renderFinal()};
+$("#showFinalTopics").onclick=()=>{game.final.stage="topics";persist();renderFinalLive();publishFinal()};
+$("#resetFinalTopics").onclick=()=>{if(!confirm("Повернути всі теми у фінал?"))return;finalTopics().forEach(t=>t.removed=false);game.final.stage="topics";persist();renderFinalLive();publishFinal()};
+
+let awardsShown=false;
+function publishAwards(){const players=game.players.map((p,i)=>({name:p.name,score:Number(p.score)||0,index:i})).filter(p=>p.index!==0).sort((a,b)=>b.score-a.score||a.index-b.index);if(!players.length){alert("Немає гравців для нагородження.");return}awardsShown=true;localStorage.setItem(SCREEN_KEY,JSON.stringify({stage:"awards",title:game.title,round:"ПІДСУМКИ",players,awardsId:Date.now()}))}
+$("#showWinners").onclick=()=>{publishAwards()};
+renderAll();publishAudience("board");
 </script>
-</body>
+<script type="module" src="./online-host.js"></script></body>
 </html>
