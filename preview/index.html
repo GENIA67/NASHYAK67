@@ -64,6 +64,7 @@ main{max-width:1400px;margin:auto;padding:22px clamp(12px,3vw,34px) 60px}.screen
 <div class="modal" id="questionModal"><div class="dialog">
  <div class="topline"><div><span class="pill" id="qCategory"></span><div class="question-points" id="qPoints"></div></div><button class="secondary small" id="closeQuestion">Закрити ✕</button></div>
  <div class="question-text" id="qText"></div><div id="qMedia"></div>
+ <div id="hostAnswerPreview" style="background:#122c38;border:1px solid #399b81;border-radius:12px;padding:12px 16px;margin:14px 0"><b style="color:#8ce9c2">🔒 Правильна відповідь · лише для ведучої</b><div id="hostAnswerContent" style="margin-top:8px;font-size:19px;font-weight:700"></div></div>
  <div class="answer" id="qAnswer"></div>
  <div class="tabs" id="answerControls"><button id="revealAnswer">Показати відповідь</button><button class="secondary" id="resetBuzz">Скинути кнопку</button></div>
  <div class="status" id="buzzStatus">Хто перший натисне кнопку — той відповідає!</div>
@@ -137,6 +138,7 @@ function openQuestion(key){
  $("#hostInstructions").style.display=modifier?"none":"block";
  $("#buzzers").style.display=modifier?"none":"flex";
  $("#scoreControls").style.display=modifier?"none":"flex";
+ $("#hostAnswerPreview").style.display=modifier?"none":"block";$("#hostAnswerContent").innerHTML=(q[1]?`<div>${esc(q[1])}</div>`:`<div style="color:#aebbd6">Відповідь не заповнено в редакторі.</div>`)+(q[3]?`<img src="${q[3]}" alt="Зображення правильної відповіді для ведучої" style="display:block;max-width:100%;max-height:30vh;object-fit:contain;border-radius:10px;margin-top:10px">`:"");
  $("#qText").textContent=q[0];$("#qAnswer").innerHTML=(q[1]?`<div>${esc(q[1])}</div>`:"")+(q[3]?`<img src="${q[3]}" alt="Фото правильної відповіді" style="max-width:100%;max-height:40vh;object-fit:contain;border-radius:12px;margin-top:12px">`:"");
  $("#qAnswer").classList.remove("show");$("#revealAnswer").textContent="Показати відповідь";
  $("#qMedia").innerHTML=!modifier&&q[2]?mediaHTML(q[2]):"";
