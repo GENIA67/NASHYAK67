@@ -9,11 +9,11 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 const render=()=>{
  const list=state?.players||[];
  if(uid){const mine=Object.entries(claims).find(([i,v])=>v===uid);selected=mine?Number(mine[0]):null}
- const confirmed=selected!==null&&selected<list.length&&claims[String(selected)]===uid;
+ const confirmed=selected!==null&&selected<list.length&&claims["p"+selected]===uid;
  choose.hidden=confirmed;document.querySelector(".scorecard").hidden=!confirmed;buzz.hidden=!confirmed;
  if(!confirmed){
    choices.hidden=pending!==null;confirm.hidden=pending===null;
-   choices.innerHTML=list.map((p,i)=>'<button class="choice" data-index="'+i+'" '+(claims[String(i)]?'disabled':'')+'>'+esc(p.name)+(claims[String(i)]?' · зайнято':'')+'</button>').join("");
+   choices.innerHTML=list.map((p,i)=>'<button class="choice" data-index="'+i+'" '+(claims["p"+i]?'disabled':'')+'>'+esc(p.name)+(claims["p"+i]?' · зайнято':'')+'</button>').join("");
    choices.querySelectorAll("button:not(:disabled)").forEach(b=>b.onclick=()=>{pending=Number(b.dataset.index);render()});
    el("onlineConfirmName").textContent=pending===null?"":"Закріпити за цим телефоном: "+(list[pending]?.name||"")+"?";
  }
