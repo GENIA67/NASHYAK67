@@ -107,7 +107,7 @@ function saveRoundSettings(){const el=$("#values");if(!el)return;const vals=pars
 function renderRounds(){
  const buttons=game.rounds.map((r,i)=>`<button class="small ${i===game.activeRound?'':'secondary'}" data-round="${i}">${esc(r.name)}</button>`).join("");
  for(const id of ["playRounds","editRounds"]){const el=$("#"+id);el.innerHTML=buttons+(id==="playRounds"?'<button class="small secondary" id="playFinalTab">Фінал →</button>':"");el.querySelectorAll("[data-round]").forEach(b=>b.onclick=()=>switchRound(+b.dataset.round))}
- $("#playFinalTab")?.addEventListener("click",()=>document.querySelector(\'[data-screen="final"]\').click());
+ $("#playFinalTab")?.addEventListener("click",()=>document.querySelector('[data-screen="final"]').click());
  $("#roundName").value=game.rounds[game.activeRound].name;
  $("#deleteRound").disabled=game.rounds.length<=1;
 }
