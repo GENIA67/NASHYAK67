@@ -122,7 +122,7 @@ function audienceState(stage="board"){
  const r=game.rounds[game.activeRound];
  return {stage,title:game.title,round:r.name,players:game.players.map(p=>({name:p.name,score:p.score})),
   categories:game.categories.map((c,ci)=>({name:c.name,tiles:game.values.map((v,qi)=>({value:v,used:!!game.used[ci+"-"+qi]}))})),
-  question:current?{category:game.categories[current.ci].name,points:current.value,text:game.categories[current.ci].questions[current.qi]?.[0]||"",answer:game.categories[current.ci].questions[current.qi]?.[1]||"",answerImage:game.categories[current.ci].questions[current.qi]?.[3]||"",modifier:!!game.categories[current.ci].questions[current.qi]?.[4],media:game.categories[current.ci].questions[current.qi]?.[2]||"",shown:answerShown}:null,
+  question:current?{instanceId:current.instanceId,category:game.categories[current.ci].name,points:current.value,text:game.categories[current.ci].questions[current.qi]?.[0]||"",answer:game.categories[current.ci].questions[current.qi]?.[1]||"",answerImage:game.categories[current.ci].questions[current.qi]?.[3]||"",modifier:!!game.categories[current.ci].questions[current.qi]?.[4],media:game.categories[current.ci].questions[current.qi]?.[2]||"",shown:answerShown}:null,
   responding:buzzed===null?null:game.players[buzzed]?.name||null};
 }
 function publishAudience(stage){if(document.querySelector("#final.screen.active")&&game.final.stage!=="setup"){publishFinal();return}try{localStorage.setItem(SCREEN_KEY,JSON.stringify(audienceState(stage)))}catch(e){alert("Фото завелике для передачі на екран гравців. Спробуй менше зображення (до 200 КБ).")}}
@@ -131,7 +131,7 @@ function changeScore(i,n){if(!game.players[i])return;game.players[i].score+=n;pe
 function renderBoard(){const el=$("#board");el.innerHTML=`<div class="board" style="--cols:${game.categories.length}">${game.categories.map((c,ci)=>`<div class="board-col"><div class="category">${esc(c.name)}</div>${pointsFor(c).map((v,qi)=>{const key=ci+"-"+qi,used=!!game.used[key];return `<button class="tile ${used?'used':''}" ${used?'disabled':''} data-q="${key}">${used?'✓':v}</button>`}).join("")}</div>`).join("")}</div>`;el.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>openQuestion(b.dataset.q))}
 function openQuestion(key){
  const [ci,qi]=key.split("-").map(Number),c=game.categories[ci],q=c?.questions[qi];if(!q)return;
- current={key,ci,qi,value:game.values[qi]||100};buzzed=null;wrongPlayers=new Set();answerShown=false;
+ current={key,ci,qi,value:game.values[qi]||100,instanceId:Date.now()+"-"+Math.random().toString(36).slice(2)};buzzed=null;wrongPlayers=new Set();answerShown=false;
  $("#qCategory").textContent=c.name;$("#qPoints").textContent=current.value+" балів";
  const modifier=!!q[4];
  $("#answerControls").style.display=modifier?"none":"flex";
@@ -169,6 +169,7 @@ function finishQuestion(correct){
 }
 function completeQuestion(){
  if(!current)return;
+ if(buzzed!==null&&!answerShown&&!confirm("Гравець уже натиснув кнопку, але відповідь не оцінено. Завершити запитання без зміни балів?"))return;
  game.used[current.key]=true;persist();current=null;buzzed=null;answerShown=false;
  $("#questionModal").classList.remove("open");renderBoard();publishAudience("board");
 }
