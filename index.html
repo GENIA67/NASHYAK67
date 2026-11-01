@@ -32,6 +32,7 @@ main{max-width:1400px;margin:auto;padding:22px clamp(12px,3vw,34px) 60px}.screen
 <main>
 <section id="play" class="screen active">
  <div class="topline"><div><h1>Ігрове поле</h1><div class="muted">Обирай категорію та вартість питання</div></div><div class="tabs"><button class="secondary small" id="resetUsed">Скинути поле</button><button class="secondary small" id="fullscreen">На весь екран</button></div></div>
+ <div id="playRounds" class="tabs" style="margin-bottom:14px"></div>
  <div id="scoreboard" class="players"></div>
  <div id="board" class="board-wrap"></div>
  <div class="footer-note">Порада: натисни на вартість питання, щоб відкрити його. Кнопка гравця фіксує першого, хто готовий відповідати.</div>
@@ -39,6 +40,9 @@ main{max-width:1400px;margin:auto;padding:22px clamp(12px,3vw,34px) 60px}.screen
 <section id="edit" class="screen">
  <div class="topline"><div><h1>Редактор гри</h1><div class="muted">Створюй власні категорії та питання</div></div><button id="addCategory">＋ Додати категорію</button></div>
  <div class="panel">
+  <div class="section-head"><h2>Раунди</h2><button id="addRound" class="small">＋ Додати раунд</button></div>
+  <div id="editRounds" class="tabs" style="margin-bottom:14px"></div>
+  <div class="formgrid"><div class="field"><label>Назва раунду</label><input id="roundName" placeholder="Наприклад, Раунд 1"></div></div>
   <div class="formgrid">
    <div class="field"><label>Назва гри</label><input id="gameTitle" value="НАШЯК"></div>
    <div class="field"><label>Бали за питання (через кому)</label><input id="values" value="100, 200, 300, 400, 500"></div>
@@ -85,8 +89,36 @@ const defaultGame={title:"НАШЯК",values:[100,200,300,400,500],players:[{nam
 {name:"СПОРТ",questions:[["Скільки гравців однієї команди на полі у футболі?","11",""],["Скільки кілець на олімпійському символі?","П'ять",""],["У якому спорті використовують ракетку та волан?","Бадмінтон",""],["Яка довжина марафону приблизно?","42,195 км",""],["У якому спорті є шайба?","Хокей",""]]}
 ],used:{},final:{category:"",question:"",answer:""}};
 let game=load(), current=null, buzzed=null, finalStarted=false, finalWagers={};
-function load(){try{return JSON.parse(localStorage.getItem("nashyак-game"))||structuredClone(defaultGame)}catch(e){return JSON.parse(JSON.stringify(defaultGame))}}
-function persist(){localStorage.setItem("nashyак-game",JSON.stringify(game))}
+function makeRound(name,values=[100,200,300,400,500]){return {name,values:[...values],categories:[{name:"НОВА ТЕМА",questions:values.map(()=>["","",""])}],used:{}}}
+function normalizeGame(data){
+ if(!data||!Array.isArray(data.players))throw Error("Некоректний файл гри");
+ if(!Array.isArray(data.rounds)){
+  if(!Array.isArray(data.categories))throw Error("Немає категорій");
+  data.rounds=[{name:"Раунд 1",values:data.values||[100,200,300,400,500],categories:data.categories,used:data.used||{}}];
+ }
+ if(!data.rounds.length) data.rounds=[makeRound("Раунд 1")];
+ data.rounds=data.rounds.map((r,i)=>({
+  name:String(r.name||"Раунд "+(i+1)),
+  values:Array.isArray(r.values)&&r.values.length?r.values:[100,200,300,400,500],
+  categories:Array.isArray(r.categories)&&r.categories.length?r.categories:[{name:"НОВА ТЕМА",questions:[]}],
+  used:r.used&&typeof r.used==="object"?r.used:{}
+ }));
+ data.activeRound=Math.max(0,Math.min(data.rounds.length-1,Number(data.activeRound)||0));
+ data.final=data.final||{category:"",question:"",answer:""};
+ const r=data.rounds[data.activeRound];
+ data.values=r.values;data.categories=r.categories;data.used=r.used;
+ return data;
+}
+function load(){try{return normalizeGame(JSON.parse(localStorage.getItem("nashyак-game"))||structuredClone(defaultGame))}catch(e){return normalizeGame(JSON.parse(JSON.stringify(defaultGame)))}}
+function syncRound(){const r=game.rounds[game.activeRound];r.values=game.values;r.categories=game.categories;r.used=game.used}
+function persist(){syncRound();localStorage.setItem("nashyак-game",JSON.stringify(game))}
+function switchRound(index){if(index<0||index>=game.rounds.length)return;syncRound();game.activeRound=index;const r=game.rounds[index];game.values=r.values;game.categories=r.categories;game.used=r.used;current=null;$("#questionModal").classList.remove("open");persist();renderAll()}
+function renderRounds(){
+ const buttons=game.rounds.map((r,i)=>`<button class="small ${i===game.activeRound?'':'secondary'}" data-round="${i}">${esc(r.name)}</button>`).join("");
+ for(const id of ["playRounds","editRounds"]){const el=$("#"+id);el.innerHTML=buttons;el.querySelectorAll("[data-round]").forEach(b=>b.onclick=()=>switchRound(+b.dataset.round))}
+ $("#roundName").value=game.rounds[game.activeRound].name;
+}
+
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function renderScores(){const el=$("#scoreboard");el.innerHTML=game.players.map((p,i)=>`<div class="player"><div class="name">${esc(p.name)}</div><div class="score">${p.score}</div><div class="player-actions"><button class="small good" data-add="${i}">+100</button><button class="small danger" data-sub="${i}">−100</button></div></div>`).join("");el.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>changeScore(+b.dataset.add,100));el.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>changeScore(+b.dataset.sub,-100))}
 function changeScore(i,n){if(!game.players[i])return;game.players[i].score+=n;persist();renderScores();renderPlayerEditor()}
@@ -98,13 +130,19 @@ function finishQuestion(correct){if(!current)return;game.used[current.key]=true;
 function renderEditor(){const el=$("#editor");el.innerHTML=game.categories.map((c,ci)=>`<div class="editor-cat"><div class="formgrid"><div class="field"><label>Категорія ${ci+1}</label><input data-cat="${ci}" value="${esc(c.name)}"></div><div class="field" style="align-content:end"><button class="danger small" data-delcat="${ci}">Видалити категорію</button></div></div>${game.values.map((v,qi)=>{let q=c.questions[qi]||["","",""];return `<div class="editor-cat" style="background:#0d1b35"><div class="qrow"><span class="pill">${v} балів</span><input data-question="${ci}-${qi}" value="${esc(q[0])}" placeholder="Текст питання"><button class="secondary small" data-expand="${ci}-${qi}">Деталі</button></div><div class="formgrid hidden" id="detail-${ci}-${qi}"><div class="field"><label>Правильна відповідь</label><input data-answer="${ci}-${qi}" value="${esc(q[1])}" placeholder="Відповідь"></div><div class="field"><label>Посилання на фото / аудіо / відео</label><input data-media="${ci}-${qi}" value="${esc(q[2])}" placeholder="https://..."></div></div></div>`}).join("")}</div>`).join("");el.querySelectorAll("[data-cat]").forEach(i=>i.onchange=()=>{game.categories[+i.dataset.cat].name=i.value;persist();renderBoard()});el.querySelectorAll("[data-question]").forEach(i=>i.onchange=()=>{let [c,q]=i.dataset.question.split("-").map(Number);game.categories[c].questions[q]??=["","",""];game.categories[c].questions[q][0]=i.value;persist()});el.querySelectorAll("[data-answer]").forEach(i=>i.onchange=()=>{let [c,q]=i.dataset.answer.split("-").map(Number);game.categories[c].questions[q]??=["","",""];game.categories[c].questions[q][1]=i.value;persist()});el.querySelectorAll("[data-media]").forEach(i=>i.onchange=()=>{let [c,q]=i.dataset.media.split("-").map(Number);game.categories[c].questions[q]??=["","",""];game.categories[c].questions[q][2]=i.value;persist()});el.querySelectorAll("[data-expand]").forEach(b=>b.onclick=()=>$("#detail-"+b.dataset.expand).classList.toggle("hidden"));el.querySelectorAll("[data-delcat]").forEach(b=>b.onclick=()=>{if(game.categories.length<=1)return alert("Має залишитися хоча б одна категорія.");game.categories.splice(+b.dataset.delcat,1);game.used={};persist();renderAll()})}
 function renderPlayerEditor(){$("#playerEditor").innerHTML=game.players.map((p,i)=>`<div class="editor-cat formgrid"><div class="field"><label>Ім'я</label><input data-pname="${i}" value="${esc(p.name)}"></div><div class="field"><label>Рахунок</label><input type="number" data-pscore="${i}" value="${p.score}"></div><div class="field" style="align-content:end"><button class="danger small" data-pdel="${i}">Видалити</button></div></div>`).join("");$("#playerEditor").querySelectorAll("[data-pname]").forEach(i=>i.onchange=()=>{game.players[+i.dataset.pname].name=i.value;persist();renderAll()});$("#playerEditor").querySelectorAll("[data-pscore]").forEach(i=>i.onchange=()=>{game.players[+i.dataset.pscore].score=Number(i.value)||0;persist();renderAll()});$("#playerEditor").querySelectorAll("[data-pdel]").forEach(b=>b.onclick=()=>{if(game.players.length<=1)return alert("Має залишитися хоча б один гравець.");game.players.splice(+b.dataset.pdel,1);persist();renderAll()})}
 function renderFinalBets(){$("#finalBets").innerHTML=game.players.map((p,i)=>`<div class="editor-cat formgrid"><div><b>${esc(p.name)}</b><div class="muted">Баланс: ${p.score}</div></div><div class="field"><label>Ставка (0 — ${Math.max(0,p.score)})</label><input type="number" min="0" max="${Math.max(0,p.score)}" value="0" data-bet="${i}"></div></div>`).join("")}
-function renderAll(){document.title=game.title+" — НАШЯК";$("#gameTitle").value=game.title;$("#values").value=game.values.join(", ");renderScores();renderBoard();renderEditor();renderPlayerEditor();$("#finalCategory").value=game.final.category||"";$("#finalQuestion").value=game.final.question||"";$("#finalAnswer").value=game.final.answer||"";renderFinalBets()}
+function renderAll(){renderRounds();document.title=game.title+" — НАШЯК";$("#gameTitle").value=game.title;$("#values").value=game.values.join(", ");renderScores();renderBoard();renderEditor();renderPlayerEditor();$("#finalCategory").value=game.final.category||"";$("#finalQuestion").value=game.final.question||"";$("#finalAnswer").value=game.final.answer||"";renderFinalBets()}
 document.querySelectorAll("[data-screen]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t===b));document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===b.dataset.screen));if(b.dataset.screen==="final")renderFinalBets()});
+$("#addRound").onclick=()=>{
+ const name="Раунд "+(game.rounds.length+1);
+ game.rounds.push(makeRound(name));
+ switchRound(game.rounds.length-1);
+};
+$("#roundName").onchange=()=>{game.rounds[game.activeRound].name=$("#roundName").value.trim()||"Раунд "+(game.activeRound+1);persist();renderRounds()};
 $("#addCategory").onclick=()=>{game.categories.push({name:"НОВА КАТЕГОРІЯ",questions:game.values.map(()=>["","",""])});persist();renderAll()};
 $("#addPlayer").onclick=()=>{let name=$("#newPlayer").value.trim();if(!name)return;game.players.push({name,score:0});$("#newPlayer").value="";persist();renderAll()};
-$("#saveGame").onclick=()=>{game.title=$("#gameTitle").value||"НАШЯК";let vals=$("#values").value.split(",").map(x=>parseInt(x.trim(),10)).filter(x=>Number.isFinite(x)&&x>0);if(!vals.length)return alert("Вкажи хоча б одне значення балів.");game.values=vals;game.categories.forEach(c=>{while(c.questions.length<vals.length)c.questions.push(["","",""]);c.questions=c.questions.slice(0,vals.length)});game.used={};persist();renderAll();alert("Гру збережено на цьому пристрої!")};
-$("#exportGame").onclick=()=>{const blob=new Blob([JSON.stringify(game,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="nashyак-game.json";a.click();URL.revokeObjectURL(a.href)};
-$("#importGame").onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());if(!data.categories||!data.players)throw 0;game=data;persist();renderAll();alert("Гру імпортовано!")}catch(err){alert("Не вдалося прочитати файл гри.")}e.target.value=""};
+$("#saveGame").onclick=()=>{game.title=$("#gameTitle").value||"НАШЯК";let vals=$("#values").value.split(",").map(x=>parseInt(x.trim(),10)).filter(x=>Number.isFinite(x)&&x>0);if(!vals.length)return alert("Вкажи хоча б одне значення балів.");game.values=vals;game.categories.forEach(c=>{while(c.questions.length<vals.length)c.questions.push(["","",""]);c.questions=c.questions.slice(0,vals.length)});persist();renderAll();alert("Гру збережено на цьому пристрої!")};
+$("#exportGame").onclick=()=>{syncRound();const blob=new Blob([JSON.stringify(game,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="nashyак-game.json";a.click();URL.revokeObjectURL(a.href)};
+$("#importGame").onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());game=normalizeGame(data);persist();renderAll();alert("Гру імпортовано!")}catch(err){alert("Не вдалося прочитати файл гри.")}e.target.value=""};
 $("#resetUsed").onclick=()=>{game.used={};persist();renderBoard()};
 $("#closeQuestion").onclick=()=>$("#questionModal").classList.remove("open");
 $("#revealAnswer").onclick=()=>{$("#qAnswer").classList.toggle("show");$("#revealAnswer").textContent=$("#qAnswer").classList.contains("show")?"Сховати відповідь":"Показати відповідь"};
