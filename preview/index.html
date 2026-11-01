@@ -163,7 +163,7 @@ function finishQuestion(correct){
  if(!current||buzzed===null||answerShown)return;
  const i=buzzed;
  changeScore(i,correct?current.value:-current.value);
- if(correct){completeQuestion();return}
+ if(correct){answerShown=true;$("#qAnswer").classList.add("show");$("#revealAnswer").textContent="Сховати відповідь";$("#buzzStatus").textContent="Правильно! +"+current.value+" балів. Відповідь показана на екрані гравців.";renderBuzzers();publishAudience("question");return}
  wrongPlayers.add(i);buzzed=null;
  $("#buzzStatus").textContent="Неправильно: −"+current.value+" балів. Інші гравці можуть відповідати.";
  renderBuzzers();publishAudience("question");
