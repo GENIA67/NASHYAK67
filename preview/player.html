@@ -7,4 +7,4 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":
 function readBuzz(){try{return JSON.parse(localStorage.getItem(BUZZ))}catch{return null}}
 $("#player").onchange=()=>{localStorage.setItem(SELECT,$("#player").value);pressedFor="";render()};
 $("#buzz").onclick=()=>{if($("#buzz").disabled||!data)return;const key=data.round+"|"+data.question.category+"|"+data.question.points+"|"+data.question.text;pressedFor=key;if(!readBuzz()||readBuzz().key!==key)localStorage.setItem(BUZZ,JSON.stringify({key,player:Number($("#player").value),name:data.players[Number($("#player").value)]?.name,time:Date.now()}));render()};
-window.addEventListener("storage",e=>{if(e.key===STATE||e.key===BUZZ)render()});render();</script></body></html>
+window.addEventListener("storage",e=>{if(e.key===STATE||e.key===BUZZ)render()});render();</script><script type="module" src="./online-player.js"></script></body></html>
