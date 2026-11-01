@@ -218,6 +218,8 @@ function renderFinalLive(){
  window.dispatchEvent(new Event("nashyak-final-render"));
  const back=$("#backFinalTopics");if(back)back.onclick=()=>{f.stage="topics";persist();renderFinalLive();publishFinal()};
 }
+window.addEventListener("nashyak-final-score",e=>{const {index,points}=e.detail;if(!game.players[index]||game.final.stage!=="question")return;changeScore(index,points);game.final.stage="answer";persist();renderFinalLive();publishFinal()});
+window.addEventListener("nashyak-final-miss",()=>{if(game.final.stage!=="question")return;game.final.misses=(game.final.misses||0)+1;persist();renderFinalLive();publishFinal()});
 function renderAll(){renderRounds();document.title=game.title+" — НАШЯК";$("#gameTitle").value=game.title;$("#values").value=game.values.join(", ");renderScores();renderBoard();renderEditor();renderPlayerEditor();renderFinal()}
 document.querySelectorAll("[data-screen]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t===b));document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===b.dataset.screen));if(b.dataset.screen==="final")renderFinal()});
 $("#addRound").onclick=()=>{
