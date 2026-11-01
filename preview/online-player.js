@@ -4,6 +4,7 @@ if(room){
 const el=id=>document.getElementById(id),player=el("player"),buzz=el("buzz"),status=el("status"),name=el("name"),score=el("score"),choose=el("onlineChoose"),choices=el("onlineChoices"),confirm=el("onlineConfirm");
 player.hidden=true;choose.hidden=false;document.querySelector(".scorecard").hidden=true;buzz.hidden=true;document.querySelector(".foot").textContent="Онлайн-режим · кімната "+room;
 let state=null,uid="",claims={},selected=null,pending=null,pressed="",busy=false,winner=null,errorMessage="";
+const describeError=e=>String(e?.code||e?.message||e||"невідома помилка");
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const render=()=>{
  const list=state?.players||[];
@@ -26,9 +27,9 @@ el("onlineYes").onclick=async()=>{if(pending===null||!uid)return;const idx=pendi
  const result=await runTransaction(ref(db,"rooms/"+room+"/claims/"+idx),current=>current===null?uid:undefined,{applyLocally:false});
  if(!result.committed){status.textContent="Цього гравця вже зайняли. Обери іншого."}
  else{selected=idx;pending=null}
-}catch(e){status.textContent="Помилка закріплення: "+e.code}finally{el("onlineYes").disabled=false;render()}};
-buzz.onclick=async()=>{if(buzz.disabled||!uid||selected===null)return;const q=state.questionId;errorMessage="";busy=true;pressed=q;render();try{const result=await runTransaction(ref(db,"rooms/"+room+"/winner"),v=>v===null?{uid,playerIndex:selected,name:state.players[selected]?.name||"Гравець",questionId:q}:undefined,{applyLocally:false});winner=result.snapshot.val();if(!result.committed&&winner?.questionId!==q)errorMessage="Натискання не зараховано: запитання змінилося.";else if(!result.committed&&!winner)errorMessage="Не вдалося зафіксувати натискання. Спробуй ще раз."}catch(e){pressed="";errorMessage="Помилка кнопки: "+e.code}finally{busy=false;render()}};
-onValue(ref(db,"rooms/"+room+"/winner"),snap=>{winner=snap.val();if(!winner)errorMessage="";render()},e=>status.textContent="Помилка результату: "+e.code);
+}catch(e){status.textContent="Помилка закріплення: "+describeError(e)}finally{el("onlineYes").disabled=false;render()}};
+buzz.onclick=async()=>{if(buzz.disabled||!uid||selected===null)return;const q=state.questionId;errorMessage="";busy=true;pressed=q;render();try{const result=await runTransaction(ref(db,"rooms/"+room+"/winner"),v=>v===null?{uid,playerIndex:selected,name:state.players[selected]?.name||"Гравець",questionId:q}:undefined,{applyLocally:false});winner=result.snapshot.val();if(!result.committed&&winner?.questionId!==q)errorMessage="Натискання не зараховано: запитання змінилося.";else if(!result.committed&&!winner)errorMessage="Не вдалося зафіксувати натискання. Спробуй ще раз."}catch(e){pressed="";errorMessage="Помилка кнопки: "+describeError(e)}finally{busy=false;render()}};
+onValue(ref(db,"rooms/"+room+"/winner"),snap=>{winner=snap.val();if(!winner)errorMessage="";render()},e=>status.textContent="Помилка результату: "+describeError(e));
 onAuthStateChanged(auth,u=>{uid=u?.uid||"";render()});
 signInAnonymously(auth).catch(e=>{status.textContent=e.code==="auth/admin-restricted-operation"?"У Firebase потрібно ввімкнути Anonymous у Authentication.":"Помилка входу: "+e.code});
 onValue(ref(db,"rooms/"+room+"/state"),snap=>{const prev=state?.questionId;state=snap.val();if(prev!==state?.questionId){pressed="";errorMessage=""}render()},e=>status.textContent="Помилка доступу: "+e.code);
