@@ -3,7 +3,7 @@ const cfg={apiKey:"AIzaSyDl5jB8zlBsGAPJ029KWNL6mis9VFCM9zY",authDomain:"nashyak-
 if(room){
 const el=id=>document.getElementById(id),player=el("player"),buzz=el("buzz"),status=el("status"),name=el("name"),score=el("score"),choose=el("onlineChoose"),choices=el("onlineChoices"),confirm=el("onlineConfirm");
 player.hidden=true;choose.hidden=false;document.querySelector(".scorecard").hidden=true;buzz.hidden=true;document.querySelector(".foot").textContent="Онлайн-режим · кімната "+room;
-let state=null,uid="",claims={},selected=null,pending=null,pressed="",busy=false,winner=null;
+let state=null,uid="",claims={},selected=null,pending=null,pressed="",busy=false,winner=null,errorMessage="";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const render=()=>{
  const list=state?.players||[];
@@ -19,7 +19,7 @@ const render=()=>{
  const p=list[selected];name.textContent=confirmed?p.name:"Гравець";score.textContent=(confirmed?(p?.score||0):0).toLocaleString("uk-UA");
  const active=!!state?.questionId&&state?.stage==="question",excluded=(state?.excluded||[]).includes(selected);
  buzz.disabled=!confirmed||!uid||!active||excluded||busy||!!(winner&&winner.questionId===state?.questionId);
- status.textContent=excluded&&active?"Ти вже відповідав на це запитання":active&&winner?.questionId===state?.questionId?(winner.uid===uid?"🏆 Ти натиснула першою!":"Першим натиснув: "+winner.name):!uid?"Підключення до Firebase…":!state?"Очікування кімнати":!list.length?"Ведуча ще не додала гравців":!confirmed?"Обери вільного гравця та підтвердь":!active?"Очікування запитання":pressed===state.questionId?"Кнопку натиснуто!":"Можна натискати!";
+ status.textContent=errorMessage?errorMessage:excluded&&active?"Ти вже відповідав на це запитання":active&&winner?.questionId===state?.questionId?(winner.uid===uid?"🏆 Ти натиснула першою!":"Першим натиснув: "+winner.name):!uid?"Підключення до Firebase…":!state?"Очікування кімнати":!list.length?"Ведуча ще не додала гравців":!confirmed?"Обери вільного гравця та підтвердь":!active?"Очікування запитання":pressed===state.questionId?"Кнопку натиснуто!":"Можна натискати!";
 };
 el("onlineNo").onclick=()=>{pending=null;render()};
 el("onlineYes").onclick=async()=>{if(pending===null||!uid)return;const idx=pending;el("onlineYes").disabled=true;try{
@@ -27,10 +27,10 @@ el("onlineYes").onclick=async()=>{if(pending===null||!uid)return;const idx=pendi
  if(!result.committed){status.textContent="Цього гравця вже зайняли. Обери іншого."}
  else{selected=idx;pending=null}
 }catch(e){status.textContent="Помилка закріплення: "+e.code}finally{el("onlineYes").disabled=false;render()}};
-buzz.onclick=async()=>{if(buzz.disabled||!uid||selected===null)return;const q=state.questionId;busy=true;pressed=q;render();try{const result=await runTransaction(ref(db,"rooms/"+room+"/winner"),v=>v===null?{uid,playerIndex:selected,name:state.players[selected]?.name||"Гравець",questionId:q}:undefined,{applyLocally:false});winner=result.snapshot.val();if(!result.committed&&winner?.questionId!==q)status.textContent="Натискання не зараховано: запитання змінилося."}catch(e){pressed="";status.textContent="Помилка кнопки: "+e.code}finally{busy=false;render()}};
-onValue(ref(db,"rooms/"+room+"/winner"),snap=>{winner=snap.val();render()},e=>status.textContent="Помилка результату: "+e.code);
+buzz.onclick=async()=>{if(buzz.disabled||!uid||selected===null)return;const q=state.questionId;errorMessage="";busy=true;pressed=q;render();try{const result=await runTransaction(ref(db,"rooms/"+room+"/winner"),v=>v===null?{uid,playerIndex:selected,name:state.players[selected]?.name||"Гравець",questionId:q}:undefined,{applyLocally:false});winner=result.snapshot.val();if(!result.committed&&winner?.questionId!==q)errorMessage="Натискання не зараховано: запитання змінилося.";else if(!result.committed&&!winner)errorMessage="Не вдалося зафіксувати натискання. Спробуй ще раз."}catch(e){pressed="";errorMessage="Помилка кнопки: "+e.code}finally{busy=false;render()}};
+onValue(ref(db,"rooms/"+room+"/winner"),snap=>{winner=snap.val();if(!winner)errorMessage="";render()},e=>status.textContent="Помилка результату: "+e.code);
 onAuthStateChanged(auth,u=>{uid=u?.uid||"";render()});
 signInAnonymously(auth).catch(e=>{status.textContent=e.code==="auth/admin-restricted-operation"?"У Firebase потрібно ввімкнути Anonymous у Authentication.":"Помилка входу: "+e.code});
-onValue(ref(db,"rooms/"+room+"/state"),snap=>{const prev=state?.questionId;state=snap.val();if(prev!==state?.questionId)pressed="";render()},e=>status.textContent="Помилка доступу: "+e.code);
+onValue(ref(db,"rooms/"+room+"/state"),snap=>{const prev=state?.questionId;state=snap.val();if(prev!==state?.questionId){pressed="";errorMessage=""}render()},e=>status.textContent="Помилка доступу: "+e.code);
 onValue(ref(db,"rooms/"+room+"/claims"),snap=>{claims=snap.val()||{};render()},e=>status.textContent="Помилка списку: "+e.code);
 }
