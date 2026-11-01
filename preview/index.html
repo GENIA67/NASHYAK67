@@ -27,6 +27,7 @@ main{max-width:1400px;margin:auto;padding:22px clamp(12px,3vw,34px) 60px}.screen
   <button class="tab" data-screen="edit">Редактор</button>
   <button class="tab" data-screen="players">Гравці</button>
   <button class="tab" data-screen="final">Фінал</button>
+  <button class="tab" id="showWinners">🏆 Підсумки</button>
  </nav>
 </header>
 <main>
@@ -261,6 +262,9 @@ $("#addFinalTopic").onclick=()=>{finalTopics().push({name:"Нова тема",qu
 $("#showFinalTopics").onclick=()=>{game.final.stage="topics";persist();renderFinalLive();publishFinal()};
 $("#resetFinalTopics").onclick=()=>{if(!confirm("Повернути всі теми у фінал?"))return;finalTopics().forEach(t=>t.removed=false);game.final.stage="topics";persist();renderFinalLive();publishFinal()};
 
+let awardsShown=false;
+function publishAwards(){const players=game.players.map((p,i)=>({name:p.name,score:Number(p.score)||0,index:i})).filter(p=>p.index!==0).sort((a,b)=>b.score-a.score||a.index-b.index);if(!players.length){alert("Немає гравців для нагородження.");return}awardsShown=true;localStorage.setItem(SCREEN_KEY,JSON.stringify({stage:"awards",title:game.title,round:"ПІДСУМКИ",players,awardsId:Date.now()}))}
+$("#showWinners").onclick=()=>{publishAwards()};
 renderAll();publishAudience("board");
 </script>
 <script type="module" src="./online-host.js"></script></body>
