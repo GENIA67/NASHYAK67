@@ -24,7 +24,7 @@ const render=()=>{
 };
 el("onlineNo").onclick=()=>{pending=null;render()};
 el("onlineYes").onclick=async()=>{if(pending===null||!uid)return;const idx=pending;el("onlineYes").disabled=true;try{
- const result=await runTransaction(ref(db,"rooms/"+room+"/claims/"+idx),current=>current===null?uid:undefined,{applyLocally:false});
+ const result=await runTransaction(ref(db,"rooms/"+room+"/claims/p"+idx),current=>current===null?uid:undefined,{applyLocally:false});
  if(!result.committed){status.textContent="Цього гравця вже зайняли. Обери іншого."}
  else{selected=idx;pending=null}
 }catch(e){status.textContent="Помилка закріплення: "+describeError(e)}finally{el("onlineYes").disabled=false;render()}};
