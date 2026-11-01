@@ -17,9 +17,9 @@ const render=()=>{
    el("onlineConfirmName").textContent=pending===null?"":"Закріпити за цим телефоном: "+(list[pending]?.name||"")+"?";
  }
  const p=list[selected];name.textContent=confirmed?p.name:"Гравець";score.textContent=(confirmed?(p?.score||0):0).toLocaleString("uk-UA");
- const active=!!state?.questionId&&state?.stage==="question";
- buzz.disabled=!confirmed||!uid||!active||busy||!!(winner&&winner.questionId===state?.questionId)||pressed===state?.questionId;
- status.textContent=active&&winner?.questionId===state?.questionId?(winner.uid===uid?"🏆 Ти натиснула першою!":"Першим натиснув: "+winner.name):!uid?"Підключення до Firebase…":!state?"Очікування кімнати":!list.length?"Ведуча ще не додала гравців":!confirmed?"Обери вільного гравця та підтвердь":!active?"Очікування запитання":pressed===state.questionId?"Кнопку натиснуто!":"Можна натискати!";
+ const active=!!state?.questionId&&state?.stage==="question",excluded=(state?.excluded||[]).includes(selected);
+ buzz.disabled=!confirmed||!uid||!active||excluded||busy||!!(winner&&winner.questionId===state?.questionId);
+ status.textContent=excluded&&active?"Ти вже відповідав на це запитання":active&&winner?.questionId===state?.questionId?(winner.uid===uid?"🏆 Ти натиснула першою!":"Першим натиснув: "+winner.name):!uid?"Підключення до Firebase…":!state?"Очікування кімнати":!list.length?"Ведуча ще не додала гравців":!confirmed?"Обери вільного гравця та підтвердь":!active?"Очікування запитання":pressed===state.questionId?"Кнопку натиснуто!":"Можна натискати!";
 };
 el("onlineNo").onclick=()=>{pending=null;render()};
 el("onlineYes").onclick=async()=>{if(pending===null||!uid)return;const idx=pending;el("onlineYes").disabled=true;try{
