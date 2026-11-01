@@ -23,15 +23,31 @@ main{padding:25px 4vw 40px;max-width:1800px;margin:auto}
 #responding{font-size:clamp(18px,2vw,30px);color:#e7d294}
 .media{display:block;max-height:55vh;max-width:85vw;width:auto;height:auto;object-fit:contain;border-radius:14px;margin:16px auto 0}
 #notice{text-align:center;color:#bdcbea}#finalTopicsScreen{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:28px auto;max-width:1300px}.final-topic{background:#0a102d;border:2px solid #294e9a;border-radius:12px;padding:32px 14px;text-align:center;font-weight:900;font-size:clamp(22px,2.8vw,40px);overflow-wrap:anywhere}
-</style></head><body>
+#awards{display:none;position:relative;min-height:65vh;text-align:center;overflow:hidden;padding:25px 12px 60px}#awards h1{font-size:clamp(32px,5vw,72px);color:#f4c44e;margin:10px 0 8px}.award-sub{color:#c2d0ee;font-size:clamp(17px,2vw,28px)}#awardList{max-width:950px;margin:25px auto;display:flex;flex-direction:column;gap:12px}.award-entry{display:flex;justify-content:space-between;align-items:center;gap:15px;background:#182c55;border:1px solid #45639b;border-radius:18px;padding:16px 25px;font-size:clamp(20px,2.5vw,36px);font-weight:800;opacity:0;transform:translateY(28px) scale(.96);animation:awardReveal .65s ease forwards;animation-delay:var(--delay)}.award-entry.winner{border:3px solid #f4c44e;background:linear-gradient(110deg,#49391b,#223e70,#49391b);color:#ffe28b;box-shadow:0 0 25px #f4c44e55}.rank{color:#f4c44e;margin-right:14px}#awardGreeting{opacity:0;transform:scale(.75);animation:awardWinner 1s cubic-bezier(.2,1.4,.3,1) forwards;animation-delay:var(--winner-delay);font-size:clamp(25px,4vw,56px);font-weight:1000;color:#f4c44e;margin:30px auto 10px}#awardGreeting small{display:block;font-size:clamp(16px,2vw,25px);color:#fff;margin-top:8px}.confetti{position:absolute;top:-20px;width:9px;height:16px;background:var(--c);left:var(--x);opacity:0;animation:confettiFall 3.3s linear forwards;animation-delay:var(--d);pointer-events:none}@keyframes awardReveal{to{opacity:1;transform:translateY(0) scale(1)}}@keyframes awardWinner{to{opacity:1;transform:scale(1)}}@keyframes confettiFall{0%{opacity:0;transform:translateY(-20px) rotate(0)}10%{opacity:1}90%{opacity:1}100%{opacity:0;transform:translateY(85vh) rotate(740deg)}}@media(prefers-reduced-motion:reduce){.award-entry,#awardGreeting{animation-duration:.01ms!important;animation-delay:0ms!important}.confetti{display:none}}</style></head><body>
 <header><div class="brand">НАШ<b>ЯК</b> <span id="round"></span></div><button id="fullscreen">На весь екран ⛶</button></header>
-<main><div id="scores"></div><div id="board"></div><div id="finalTopicsScreen" style="display:none"></div><div id="question"><div id="category"></div><div id="finalPrize" style="display:none;color:#f4c44e;font-weight:900;font-size:clamp(26px,3.5vw,52px);padding:12px 22px;border:2px solid #f4c44e;border-radius:14px"></div><div id="qtext"></div><div id="media"></div><div id="responding"></div><div id="answer"></div></div><div id="notice"></div></main>
+<main><div id="scores"></div><div id="board"></div><div id="finalTopicsScreen" style="display:none"></div><div id="question"><div id="category"></div><div id="finalPrize" style="display:none;color:#f4c44e;font-weight:900;font-size:clamp(26px,3.5vw,52px);padding:12px 22px;border:2px solid #f4c44e;border-radius:14px"></div><div id="qtext"></div><div id="media"></div><div id="responding"></div><div id="answer"></div></div><div id="notice"></div><section id="awards"><div class="award-sub">НАШЯК · РЕЗУЛЬТАТИ ГРИ</div><h1>🏆 ПІДСУМКИ</h1><div id="awardList"></div><div id="awardGreeting"></div><div id="awardConfetti"></div></section></main>
 <script>
 const KEY="nashyak-preview-audience-v1", $=s=>document.querySelector(s);
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function mediaHTML(url){if(!url)return "";if(/^data:image\/(png|jpeg|webp|gif);base64,/i.test(url))return '<img class="media" src="'+url+'" alt="Фото до запитання">';if(!/^https?:\/\//i.test(url))return "";const safe=esc(url);if(/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url))return '<img class="media" src="'+safe+'">';if(/\.(mp4|webm)(\?|$)/i.test(url))return '<video class="media" autoplay controls src="'+safe+'"></video>';if(/\.(mp3|wav|ogg)(\?|$)/i.test(url))return '<audio controls src="'+safe+'"></audio>';return '<a href="'+safe+'" target="_blank" rel="noopener" style="color:#f4c44e">Відкрити матеріал</a>'}
+let lastAwardsId=null;
+function renderAwards(data){
+ const players=(data.players||[]).filter(p=>p.index!==0).slice().sort((a,b)=>Number(b.score)-Number(a.score));
+ if(!players.length)return;
+ const id=data.awardsId||"default";if(lastAwardsId===id)return;lastAwardsId=id;
+ const top=Number(players[0].score)||0,winners=players.filter(p=>Number(p.score)===top);
+ const ordered=players.slice().reverse(),delayStep=Math.min(1.15,5/Math.max(1,ordered.length)),base=.7;
+ $("#awardList").innerHTML=ordered.map((p,i)=>'<div class="award-entry '+(Number(p.score)===top?'winner':'')+'" style="--delay:'+(base+i*delayStep)+'s"><span><span class="rank">'+(1+players.filter(x=>Number(x.score)>Number(p.score)).length)+'.</span>'+esc(p.name)+'</span><b>'+Number(p.score).toLocaleString("uk-UA")+'</b></div>').join("");
+ const finish=base+ordered.length*delayStep+.4;
+ $("#awardGreeting").style.setProperty("--winner-delay",finish+"s");
+ $("#awardGreeting").innerHTML=(winners.length===1?"🎉 ВІТАЄМО ПЕРЕМОЖЦЯ!":"🎉 ВІТАЄМО ПЕРЕМОЖЦІВ!")+"<small>"+winners.map(p=>esc(p.name)).join(" · ")+"</small>";
+ const colors=["#f4c44e","#ffffff","#71b9ff","#ff759f","#85edc3"];
+ $("#awardConfetti").innerHTML=Array.from({length:65},(_,i)=>'<i class="confetti" style="--x:'+((i*73.7)%100)+'%;--c:'+colors[i%colors.length]+';--d:'+(finish+(i%12)*.11)+'s"></i>').join("");
+}
 function render(){let data;try{data=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!data){$("#notice").textContent="Відкрий гру в панелі ведучої, щоб розпочати.";return}
 $("#round").textContent="· "+(data.round||"");
+ if(data.stage==="awards"){$("#scores").style.display="none";$("#board").style.display="none";$("#question").style.display="none";$("#finalTopicsScreen").style.display="none";$("#notice").style.display="none";$("#awards").style.display="block";renderAwards(data);return;}
+ lastAwardsId=null;$("#awards").style.display="none";$("#scores").style.display="flex";$("#notice").style.display="block";
 $("#scores").innerHTML=(data.players||[]).filter((p,i)=>i!==0).map(p=>'<div class="player">'+esc(p.name)+'<b>'+Number(p.score||0)+'</b></div>').join("");
 const q=data.question;
 if(data.stage==="final"){
