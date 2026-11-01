@@ -202,7 +202,7 @@ $("#saveGame").onclick=()=>{game.title=$("#gameTitle").value||"НАШЯК";let v
 $("#exportGame").onclick=()=>{syncRound();const blob=new Blob([JSON.stringify(game,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="nashyак-game.json";a.click();URL.revokeObjectURL(a.href)};
 $("#importGame").onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());game=normalizeGame(data);persist();renderAll();alert("Гру імпортовано!")}catch(err){alert("Не вдалося прочитати файл гри.")}e.target.value=""};
 $("#resetUsed").onclick=()=>{game.used={};persist();renderBoard();publishAudience("board")};
-$("#openAudience").onclick=()=>{publishAudience(current?"question":"board");window.open("./screen.html","nashyak-audience")};
+$("#openAudience").onclick=()=>{publishAudience(current?"question":"board");window.open("./screen-v2.html","nashyak-audience-v2")};
 $("#closeQuestion").onclick=()=>completeQuestion();
 $("#revealAnswer").onclick=()=>{
  if(!current)return;
