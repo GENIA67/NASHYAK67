@@ -10,9 +10,9 @@ main{padding:25px 4vw 40px;max-width:1800px;margin:auto}
 #scores{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:12px 0 25px}
 .player{background:#1b315b;border:1px solid #486ba0;padding:12px 25px;border-radius:14px;text-align:center;min-width:130px}
 .player b{display:block;color:#f4c44e;font-size:clamp(22px,2.5vw,38px)}
-.board{display:grid;grid-template-columns:repeat(var(--cols),minmax(120px,1fr));gap:10px;overflow-x:auto}
-.col{display:grid;gap:10px}.cat{background:#28487e;padding:20px 8px;border-radius:12px;text-align:center;font-weight:900;overflow-wrap:anywhere}
-.tile{background:#203c70;color:#f4c44e;padding:22px 8px;border-radius:12px;text-align:center;font-size:clamp(20px,3vw,38px);font-weight:950}.tile.used{opacity:.28}
+.board{display:grid;grid-template-columns:minmax(220px,2.6fr) repeat(var(--points),minmax(85px,1fr));gap:3px;overflow-x:auto;background:#671d2c;padding:3px}
+.board-row{display:contents}.cat{background:#0a102d;padding:18px 8px;min-height:clamp(75px,11vh,130px);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;font-size:clamp(17px,2.4vw,38px);overflow-wrap:anywhere;text-transform:uppercase}
+.tile{background:linear-gradient(160deg,#1749c5,#08247c);color:#fff;min-height:clamp(75px,11vh,130px);display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(20px,3vw,38px);font-weight:850}.tile.used{background:#101b40;color:#637193}
 #question{display:none;min-height:65vh;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:26px}
 #category{font-size:clamp(24px,3vw,48px);font-weight:900;color:#f4c44e}
 #qtext{font-size:clamp(32px,5vw,76px);font-weight:850;line-height:1.15;max-width:1300px;overflow-wrap:anywhere}
@@ -40,8 +40,8 @@ if(data.stage==="question"&&q){
  $("#responding").textContent=q.shown?"":data.responding?"Відповідає: "+data.responding:"";
  }else{
  $("#board").style.display="grid";$("#question").style.display="none";$("#notice").textContent="";
- const cats=data.categories||[];$("#board").style.setProperty("--cols",Math.max(1,cats.length));
- $("#board").innerHTML=cats.map(c=>'<div class="col"><div class="cat">'+esc(c.name)+'</div>'+(c.tiles||[]).map(t=>'<div class="tile '+(t.used?'used':'')+'">'+(t.used?'✓':esc(t.value))+'</div>').join("")+'</div>').join("");
+ const cats=data.categories||[];$("#board").style.setProperty("--points",Math.max(1,...cats.map(c=>(c.tiles||[]).length)));
+ $("#board").innerHTML=cats.map(c=>'<div class="board-row"><div class="cat">'+esc(c.name)+'</div>'+(c.tiles||[]).map(t=>'<div class="tile '+(t.used?'used':'')+'">'+(t.used?'✓':esc(t.value))+'</div>').join("")+'</div>').join("");
  }}
 window.addEventListener("storage",e=>{if(e.key===KEY)render()});
 $("#fullscreen").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
