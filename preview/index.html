@@ -112,7 +112,7 @@ function normalizeGame(data){
 function load(){try{return normalizeGame(JSON.parse(localStorage.getItem("nashyак-preview-game"))||structuredClone(defaultGame))}catch(e){return normalizeGame(JSON.parse(JSON.stringify(defaultGame)))}}
 function syncRound(){const r=game.rounds[game.activeRound];r.values=game.values;r.categories=game.categories;r.used=game.used}
 function persist(){syncRound();localStorage.setItem("nashyак-preview-game",JSON.stringify(game))}
-function switchRound(index){if(index<0||index>=game.rounds.length)return;saveRoundSettings();syncRound();game.activeRound=index;const r=game.rounds[index];game.values=r.values;game.categories=r.categories;game.used=r.used;current=null;$("#questionModal").classList.remove("open");persist();renderAll()}
+function switchRound(index){if(index<0||index>=game.rounds.length)return;saveRoundSettings();syncRound();game.activeRound=index;const r=game.rounds[index];game.values=r.values;game.categories=r.categories;game.used=r.used;current=null;$("#questionModal").classList.remove("open");persist();renderAll();publishAudience("board")}
 function saveRoundSettings(){const el=$("#values");if(!el)return;const vals=parsePoints(el.value);if(vals){game.values=vals;game.rounds[game.activeRound].values=vals}const name=$("#roundName")?.value.trim();if(name)game.rounds[game.activeRound].name=name}
 function renderRounds(){
  const buttons=game.rounds.map((r,i)=>`<button class="small ${i===game.activeRound?'':'secondary'}" data-round="${i}">${esc(r.name)}</button>`).join("");
