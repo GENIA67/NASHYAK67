@@ -25,7 +25,7 @@ main{padding:25px 4vw 40px;max-width:1800px;margin:auto}
 #notice{text-align:center;color:#bdcbea}#finalTopicsScreen{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:28px auto;max-width:1300px}.final-topic{background:#0a102d;border:2px solid #294e9a;border-radius:12px;padding:32px 14px;text-align:center;font-weight:900;font-size:clamp(22px,2.8vw,40px);overflow-wrap:anywhere}
 </style></head><body>
 <header><div class="brand">НАШ<b>ЯК</b> <span id="round"></span></div><button id="fullscreen">На весь екран ⛶</button></header>
-<main><div id="scores"></div><div id="board"></div><div id="finalTopicsScreen" style="display:none"></div><div id="question"><div id="category"></div><div id="qtext"></div><div id="media"></div><div id="responding"></div><div id="answer"></div></div><div id="notice"></div></main>
+<main><div id="scores"></div><div id="board"></div><div id="finalTopicsScreen" style="display:none"></div><div id="question"><div id="category"></div><div id="finalPrize" style="display:none;color:#f4c44e;font-weight:900;font-size:clamp(26px,3.5vw,52px);padding:12px 22px;border:2px solid #f4c44e;border-radius:14px"></div><div id="qtext"></div><div id="media"></div><div id="responding"></div><div id="answer"></div></div><div id="notice"></div></main>
 <script>
 const KEY="nashyak-preview-audience-v1", $=s=>document.querySelector(s);
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -37,18 +37,18 @@ const q=data.question;
 if(data.stage==="final"){
  $("#board").style.display="none";$("#notice").textContent="";
  if(data.finalStage==="topics"||data.finalStage==="setup"){
- $("#question").style.display="none";$("#finalTopicsScreen").style.display="grid";
+ $("#question").style.display="none";$("#finalTopicsScreen").style.display="grid";$("#finalPrize").style.display="none";
  $("#finalTopicsScreen").innerHTML=(data.topics||[]).map(t=>'<div class="final-topic">'+esc(t)+'</div>').join("");
  }else{
  $("#finalTopicsScreen").style.display="none";$("#question").style.display="flex";
- $("#category").textContent=q?.category||"ФІНАЛ";$("#qtext").textContent=q?.text||"";
+ $("#category").textContent=q?.category||"ФІНАЛ";$("#finalPrize").style.display=data.finalStage==="question"?"block":"none";$("#finalPrize").textContent="Вартість правильної відповіді: "+Number(data.finalValue||0).toLocaleString("uk-UA")+" балів";$("#qtext").textContent=q?.text||"";
  $("#qtext").style.display=data.finalStage==="answer"?"none":"block";
  $("#media").innerHTML=data.finalStage==="answer"?"":mediaHTML(q?.media||"");
  $("#answer").innerHTML='<div style="font-size:clamp(22px,3vw,42px);margin-bottom:16px">Відповідь:</div>'+(q?.answer?'<div>'+esc(q.answer)+'</div>':'')+(q?.answerImage?'<img src="'+q.answerImage+'" alt="Фото правильної відповіді" style="display:block;max-width:85vw;max-height:55vh;object-fit:contain;margin:16px auto 0;border-radius:14px">':'');
  $("#answer").style.display=data.finalStage==="answer"?"block":"none";$("#responding").textContent="";
  }return;
 }
-$("#finalTopicsScreen").style.display="none";
+$("#finalTopicsScreen").style.display="none";$("#finalPrize").style.display="none";
 if(data.stage==="question"&&q){
  $("#board").style.display="none";$("#question").style.display="flex";$("#notice").textContent="";
  $("#category").textContent=q.modifier?"МОДИФІКАТОР":q.category+" · "+q.points+" балів";
