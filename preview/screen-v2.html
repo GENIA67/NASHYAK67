@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>НАШЯК — екран гравців</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#223d76,#0b1226 65%);color:#fff;font-family:system-ui,Arial,sans-serif;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;border-bottom:1px solid #40547c;gap:20px}
+.brand{font-weight:1000;font-size:26px;letter-spacing:.12em}.brand b,.gold{color:#f4c44e}
+button{border:0;border-radius:10px;padding:10px 15px;background:#f4c44e;color:#17213a;font-weight:800;cursor:pointer}
+main{padding:25px 4vw 40px;max-width:1800px;margin:auto}
+#scores{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:12px 0 25px}
+.player{background:#1b315b;border:1px solid #486ba0;padding:12px 25px;border-radius:14px;text-align:center;min-width:130px}
+.player b{display:block;color:#f4c44e;font-size:clamp(22px,2.5vw,38px)}
+.board{width:100%;overflow-x:auto;background:#671d2c;padding:2px}
+.quiz-table{width:100%;min-width:720px;border-collapse:separate;border-spacing:2px;table-layout:fixed}
+.quiz-table th,.quiz-table td{height:clamp(76px,11vh,135px);text-align:center;vertical-align:middle;padding:10px 5px}
+.quiz-table th{width:40%;background:#0a102d;color:#fff;font-weight:900;font-size:clamp(18px,2.6vw,42px);line-height:1.12;text-transform:uppercase;overflow-wrap:anywhere}
+.quiz-table td{background:linear-gradient(160deg,#1749c5,#08247c);color:white;font-size:clamp(21px,3vw,43px);font-weight:900}
+.quiz-table td.used{background:#101b40;color:#637193}
+#question{display:none;min-height:65vh;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:26px}
+#category{font-size:clamp(24px,3vw,48px);font-weight:900;color:#f4c44e}
+#qtext{font-size:clamp(32px,5vw,76px);font-weight:850;line-height:1.15;max-width:1300px;overflow-wrap:anywhere}
+#answer{display:none;font-size:clamp(32px,5vw,72px);font-weight:900;color:#7ee4b5}
+#responding{font-size:clamp(18px,2vw,30px);color:#e7d294}
+.media{max-height:35vh;max-width:80vw;border-radius:12px}
+#notice{text-align:center;color:#bdcbea}
+</style></head><body>
+<header><div class="brand">НАШ<b>ЯК</b> <span id="round"></span></div><button id="fullscreen">На весь екран ⛶</button></header>
+<main><div id="scores"></div><div id="board"></div><div id="question"><div id="category"></div><div id="qtext"></div><div id="media"></div><div id="responding"></div><div id="answer"></div></div><div id="notice"></div></main>
+<script>
+const KEY="nashyak-preview-audience-v1", $=s=>document.querySelector(s);
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function mediaHTML(url){if(!url)return "";if(!/^https?:\/\//i.test(url))return "";const safe=esc(url);if(/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url))return '<img class="media" src="'+safe+'">';if(/\.(mp4|webm)(\?|$)/i.test(url))return '<video class="media" autoplay controls src="'+safe+'"></video>';if(/\.(mp3|wav|ogg)(\?|$)/i.test(url))return '<audio controls src="'+safe+'"></audio>';return '<a href="'+safe+'" target="_blank" rel="noopener" style="color:#f4c44e">Відкрити матеріал</a>'}
+function render(){let data;try{data=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!data){$("#notice").textContent="Відкрий гру в панелі ведучої, щоб розпочати.";return}
+$("#round").textContent="· "+(data.round||"");
+$("#scores").innerHTML=(data.players||[]).map(p=>'<div class="player">'+esc(p.name)+'<b>'+Number(p.score||0)+'</b></div>').join("");
+const q=data.question;
+if(data.stage==="question"&&q){
+ $("#board").style.display="none";$("#question").style.display="flex";$("#notice").textContent="";
+ $("#category").textContent=q.category+" · "+q.points+" балів";
+ $("#qtext").textContent=q.text;$("#answer").textContent="Відповідь: "+q.answer;
+ $("#answer").style.display=q.shown?"block":"none";$("#qtext").style.display=q.shown?"none":"block";
+ $("#media").innerHTML=q.shown?"":mediaHTML(q.media);
+ $("#responding").textContent=q.shown?"":data.responding?"Відповідає: "+data.responding:"";
+ }else{
+ $("#board").style.display="block";$("#question").style.display="none";$("#notice").textContent="";
+ const cats=data.categories||[];
+ const count=Math.max(1,...cats.map(c=>(c.tiles||[]).length));
+ $("#board").innerHTML='<table class="quiz-table"><colgroup><col style="width:40%">'+Array.from({length:count},()=>'<col style="width:'+60/count+'%">').join('')+'</colgroup><tbody>'+
+ cats.map(c=>'<tr><th scope="row">'+esc(c.name)+'</th>'+Array.from({length:count},(_,i)=>{const t=(c.tiles||[])[i];return '<td class="'+(t?.used?'used':'')+'">'+(t?(t.used?'':esc(t.value)):'')+'</td>'}).join('')+'</tr>').join('')+'</tbody></table>';
+ }}
+window.addEventListener("storage",e=>{if(e.key===KEY)render()});
+$("#fullscreen").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
+render();
+</script></body></html>
