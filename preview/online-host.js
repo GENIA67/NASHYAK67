@@ -43,10 +43,8 @@ document.addEventListener("click",async e=>{
    window.dispatchEvent(new CustomEvent("nashyak-final-score",{detail:{index:current.playerIndex,points:amount}}));
    await remove(ref(db,"rooms/"+room+"/winner"));winner=null;renderFinalWinner();
   }else{
-   excluded=[...new Set([...excluded,current.playerIndex])];
-   await set(ref(db,"rooms/"+room+"/state/excluded"),excluded);
    await remove(ref(db,"rooms/"+room+"/winner"));winner=null;
-   window.dispatchEvent(new Event("nashyak-final-miss"));
+   window.dispatchEvent(new CustomEvent("nashyak-final-miss",{detail:{index:current.playerIndex}}));
    last="";renderFinalWinner();
   }
  }catch(err){const m=document.getElementById("finalWinnerMessage");if(m)m.textContent="Помилка: "+(err.code||err.message||err)}
