@@ -51,6 +51,7 @@ $("#round").textContent="· "+(data.round||"");
 $("#scores").innerHTML=(data.players||[]).filter((p,i)=>i!==0).map(p=>'<div class="player">'+esc(p.name)+'<b>'+Number(p.score||0)+'</b></div>').join("");
 const q=data.question;
 if(data.stage==="final"){
+ $("#scores").style.display="none";
  $("#board").style.display="none";$("#notice").textContent="";
  if(data.finalStage==="topics"||data.finalStage==="setup"){
  $("#question").style.display="none";$("#finalTopicsScreen").style.display="grid";
@@ -64,7 +65,7 @@ if(data.stage==="final"){
  $("#answer").style.display=data.finalStage==="answer"?"block":"none";$("#responding").textContent="";
  }return;
 }
-$("#finalTopicsScreen").style.display="none";$("#finalPrize").style.display="none";
+$("#finalTopicsScreen").style.display="none";
 if(data.stage==="question"&&q){
  $("#board").style.display="none";$("#question").style.display="flex";$("#notice").textContent="";
  $("#category").textContent=q.modifier?"МОДИФІКАТОР":q.category+" · "+q.points+" балів";
