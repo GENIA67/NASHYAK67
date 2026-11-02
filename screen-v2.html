@@ -25,7 +25,7 @@ main{padding:25px 4vw 40px;max-width:1800px;margin:auto}
 #notice{text-align:center;color:#bdcbea}#finalTopicsScreen{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:28px auto;max-width:1300px}.final-topic{background:#0a102d;border:2px solid #294e9a;border-radius:12px;padding:32px 14px;text-align:center;font-weight:900;font-size:clamp(22px,2.8vw,40px);overflow-wrap:anywhere}
 #awards{display:none;position:relative;min-height:65vh;text-align:center;overflow:hidden;padding:25px 12px 60px}#awards h1{font-size:clamp(32px,5vw,72px);color:#f4c44e;margin:10px 0 8px}.award-sub{color:#c2d0ee;font-size:clamp(17px,2vw,28px)}#awardList{max-width:950px;margin:25px auto;display:flex;flex-direction:column;gap:12px}.award-entry{display:flex;justify-content:space-between;align-items:center;gap:15px;background:#182c55;border:1px solid #45639b;border-radius:18px;padding:16px 25px;font-size:clamp(20px,2.5vw,36px);font-weight:800;opacity:0;transform:translateY(28px) scale(.96);animation:awardReveal .65s ease forwards;animation-delay:var(--delay)}.award-entry.winner{border:3px solid #f4c44e;background:linear-gradient(110deg,#49391b,#223e70,#49391b);color:#ffe28b;box-shadow:0 0 25px #f4c44e55}.rank{color:#f4c44e;margin-right:14px}#awardGreeting{opacity:0;transform:scale(.75);animation:awardWinner 1s cubic-bezier(.2,1.4,.3,1) forwards;animation-delay:var(--winner-delay);font-size:clamp(25px,4vw,56px);font-weight:1000;color:#f4c44e;margin:30px auto 10px}#awardGreeting small{display:block;font-size:clamp(16px,2vw,25px);color:#fff;margin-top:8px}.confetti{position:absolute;top:-20px;width:9px;height:16px;background:var(--c);left:var(--x);opacity:0;animation:confettiFall 3.3s linear forwards;animation-delay:var(--d);pointer-events:none}@keyframes awardReveal{to{opacity:1;transform:translateY(0) scale(1)}}@keyframes awardWinner{to{opacity:1;transform:scale(1)}}@keyframes confettiFall{0%{opacity:0;transform:translateY(-20px) rotate(0)}10%{opacity:1}90%{opacity:1}100%{opacity:0;transform:translateY(85vh) rotate(740deg)}}@media(prefers-reduced-motion:reduce){.award-entry,#awardGreeting{animation-duration:.01ms!important;animation-delay:0ms!important}.confetti{display:none}}</style></head><body>
 <header><div class="brand">НАШ<b>ЯК</b> <span id="round"></span></div><button id="fullscreen">На весь екран ⛶</button></header>
-<main><div id="scores"></div><div id="board"></div><div id="finalTopicsScreen" style="display:none"></div><div id="question"><div id="category"></div><div id="finalPrize" style="display:none;color:#f4c44e;font-weight:900;font-size:clamp(26px,3.5vw,52px);padding:12px 22px;border:2px solid #f4c44e;border-radius:14px"></div><div id="qtext"></div><div id="media"></div><div id="responding"></div><div id="answer"></div></div><div id="notice"></div><section id="awards"><div class="award-sub">НАШЯК · РЕЗУЛЬТАТИ ГРИ</div><h1>🏆 ПІДСУМКИ</h1><div id="awardList"></div><div id="awardGreeting"></div><div id="awardConfetti"></div></section></main>
+<main><div id="scores"></div><div id="board"></div><div id="finalTopicsScreen" style="display:none"></div><div id="question"><div id="category"></div><div id="qtext"></div><div id="media"></div><div id="responding"></div><div id="answer"></div></div><div id="notice"></div><section id="awards"><div class="award-sub">НАШЯК · РЕЗУЛЬТАТИ ГРИ</div><h1>🏆 ПІДСУМКИ</h1><div id="awardList"></div><div id="awardGreeting"></div><div id="awardConfetti"></div></section></main>
 <script>
 const KEY="nashyak-preview-audience-v1", $=s=>document.querySelector(s);
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -51,20 +51,21 @@ $("#round").textContent="· "+(data.round||"");
 $("#scores").innerHTML=(data.players||[]).filter((p,i)=>i!==0).map(p=>'<div class="player">'+esc(p.name)+'<b>'+Number(p.score||0)+'</b></div>').join("");
 const q=data.question;
 if(data.stage==="final"){
+ $("#scores").style.display="none";
  $("#board").style.display="none";$("#notice").textContent="";
  if(data.finalStage==="topics"||data.finalStage==="setup"){
- $("#question").style.display="none";$("#finalTopicsScreen").style.display="grid";$("#finalPrize").style.display="none";
+ $("#question").style.display="none";$("#finalTopicsScreen").style.display="grid";
  $("#finalTopicsScreen").innerHTML=(data.topics||[]).map(t=>'<div class="final-topic">'+esc(t)+'</div>').join("");
  }else{
  $("#finalTopicsScreen").style.display="none";$("#question").style.display="flex";
- $("#category").textContent=q?.category||"ФІНАЛ";$("#finalPrize").style.display=data.finalStage==="question"?"block":"none";$("#finalPrize").textContent="Вартість правильної відповіді: "+Number(data.finalValue||0).toLocaleString("uk-UA")+" балів";$("#qtext").textContent=q?.text||"";
+ $("#category").textContent=q?.category||"ФІНАЛ";$("#qtext").textContent=q?.text||"";
  $("#qtext").style.display=data.finalStage==="answer"?"none":"block";
  $("#media").innerHTML=data.finalStage==="answer"?"":mediaHTML(q?.media||"");
  $("#answer").innerHTML='<div style="font-size:clamp(22px,3vw,42px);margin-bottom:16px">Відповідь:</div>'+(q?.answer?'<div>'+esc(q.answer)+'</div>':'')+(q?.answerImage?'<img src="'+q.answerImage+'" alt="Фото правильної відповіді" style="display:block;max-width:85vw;max-height:55vh;object-fit:contain;margin:16px auto 0;border-radius:14px">':'');
  $("#answer").style.display=data.finalStage==="answer"?"block":"none";$("#responding").textContent="";
  }return;
 }
-$("#finalTopicsScreen").style.display="none";$("#finalPrize").style.display="none";
+$("#finalTopicsScreen").style.display="none";
 if(data.stage==="question"&&q){
  $("#board").style.display="none";$("#question").style.display="flex";$("#notice").textContent="";
  $("#category").textContent=q.modifier?"МОДИФІКАТОР":q.category+" · "+q.points+" балів";
