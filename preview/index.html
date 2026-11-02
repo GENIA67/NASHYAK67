@@ -24,6 +24,41 @@ main{max-width:1400px;margin:auto;padding:22px clamp(12px,3vw,34px) 60px}.screen
 /* Reference artwork refinement: no DOM or layout changes */
 body{isolation:isolate}body::before,body::after{content:"";position:fixed;z-index:-1;pointer-events:none;width:88vw;height:35vh;border-radius:48% 52% 0 0 / 90% 100% 0 0;filter:drop-shadow(0 0 26px #7748f355)}body::before{left:-24vw;bottom:-13vh;transform:rotate(13deg);background:linear-gradient(125deg,#193c9e 3%,#6533cb 54%,#a347ed 85%,transparent 100%);opacity:.68}body::after{right:-30vw;bottom:-16vh;transform:rotate(-16deg);background:linear-gradient(110deg,transparent,#173db4 35%,#7940d8 76%,#a948ec);opacity:.68}
 body{background:radial-gradient(ellipse at 87% 14%,#271965 0%,transparent 38%),radial-gradient(ellipse at 8% 85%,#182c76 0%,transparent 48%),#080c25}.brand{font-style:italic;letter-spacing:-.055em;transform:skew(-5deg);text-shadow:0 3px 0 #37266b,0 0 20px #a85bff44}.brand span{color:#fff}header{background:linear-gradient(110deg,#0c1235eb,#101137e8);border-bottom-color:#8572ca77}.panel{background:linear-gradient(155deg,#191e4cfa,#121838f7);border:1px solid #64579d;border-radius:18px;box-shadow:0 15px 35px #04081c80,0 0 22px #704bce19}.player{background:linear-gradient(160deg,#202353,#13193b);border-color:#554a9a;box-shadow:inset 0 0 20px #6944c412}.category{background:linear-gradient(145deg,#262354,#181d46)}.tile{background:linear-gradient(155deg,#4631a0,#262b78);border-color:#7763d2;color:#fff;text-shadow:0 0 12px #aa88ff44}.tile:not(:disabled):hover{box-shadow:0 0 18px #865cf266}.score{color:#fff;text-shadow:0 0 15px #a877ff66}.dialog{background:linear-gradient(155deg,#212152,#121735);border-color:#7564b8}.question-text{color:#fff;text-shadow:0 0 18px #8d65d033}button:not(.danger):not(.good):not(.secondary):not(.tab):not(.tile):not(.buzz){background:linear-gradient(135deg,#a96bfb,#6846dd);color:#fff}.status,.answer{background:#141b41}.pill{background:#252154;border:1px solid #57489a}
+
+/* TV SHOW V2 — new host control-room composition */
+@media(min-width:1050px){
+body{padding-left:214px}
+header{position:fixed;inset:0 auto 0 0;width:214px;z-index:9;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:30px;padding:28px 15px;background:linear-gradient(180deg,#0b1030,#11113a 75%,#0b1030);border-right:1px solid #6755a477;border-bottom:0}
+header .brand{font-size:25px}
+header .tag{font-size:10px}
+header nav.tabs{display:flex;flex-direction:column;align-items:stretch;gap:9px}
+header nav.tabs .tab{text-align:left;padding:15px 17px;border-radius:15px;background:transparent;color:#d0caee;font-size:14px;box-shadow:none}
+header nav.tabs .tab.active{background:linear-gradient(105deg,#4b348b,#20244f);color:#fff;border-left:3px solid #ac7aff;box-shadow:0 0 18px #7850dd33}
+main{max-width:1700px;padding:24px 25px 65px}
+#play.active{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px;align-items:start}
+#play .topline,#play #playRounds,#play #board,#play .footer-note{grid-column:1}
+#play #scoreboard{grid-column:2;grid-row:1 / span 4;display:flex;flex-direction:column;gap:12px;position:sticky;top:20px}
+#play #scoreboard .player{min-width:0}
+#play .topline{margin-bottom:0}
+#play #board{min-width:0}
+main>.panel:first-child{border-color:#7663c1;background:linear-gradient(135deg,#1b1d4e,#121739);box-shadow:0 0 26px #8256ed26}
+}
+@media(max-width:1049px){header nav.tabs{gap:6px}header nav.tabs .tab{border-radius:14px}}
+header .brand{font-family:"Unbounded",sans-serif;font-style:italic;letter-spacing:-.07em}
+#play h1{font-size:clamp(24px,3vw,36px)}
+#play .topline{background:linear-gradient(145deg,#1b1e4b,#141838);border:1px solid #5a4d95;border-radius:20px;padding:19px}
+#playRounds{background:#121737;border:1px solid #514585;border-radius:15px;padding:10px}
+#scoreboard .player{border:1px solid #6656ac;border-radius:18px;background:linear-gradient(155deg,#1d2052,#111735);box-shadow:0 0 14px #7d55d322}
+#scoreboard .score{font-family:"Unbounded",sans-serif;font-size:25px}
+#board .category{background:#191b46;border-radius:14px;font-family:"Manrope",sans-serif}
+#board .tile{background:linear-gradient(145deg,#5138b0,#242d81);border-radius:14px}
+#questionModal .dialog{border:1px solid #8e72df;box-shadow:0 0 45px #7b50ed35,0 25px 90px #000a}
+#questionModal .question-text{font-family:"Unbounded",sans-serif;font-weight:700;line-height:1.35}
+#questionModal #revealAnswer,#questionModal #markCorrect{background:linear-gradient(120deg,#a86af7,#6d47df);color:#fff;box-shadow:0 0 20px #9862ed55}
+#questionModal #markWrong{background:#ac315e;color:#fff}
+#questionModal #skipQuestion{background:#292951;color:#fff}
+#onlineModalBuzz{border-color:#a777ff!important;color:#fff!important;background:#25215a!important;box-shadow:0 0 24px #9e67ee55}
+
 </style>
 </head>
 <body>
