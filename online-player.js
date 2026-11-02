@@ -23,17 +23,17 @@ const render=()=>{
  }
  
  const confirmed=selected!==null&&claims[String(selected)]===uid&&list.some((p,i)=>(p.index??i)===selected);
- choose.hidden=ended||exited||confirmed||lateWait;document.querySelector(".scorecard").hidden=ended||exited||!confirmed;buzz.hidden=ended||exited||!confirmed;
+ choose.hidden=ended||exited||confirmed||lateWait;document.querySelector(".scorecard").hidden=ended||exited||!confirmed;buzz.hidden=ended||exited||!confirmed||state?.stage==="final";
  if(!confirmed){
    choices.hidden=pending!==null;confirm.hidden=pending===null;
    choices.innerHTML=list.map((p,i)=>i===0?"":'<button class="choice" data-index="'+i+'" '+(claims[String(i)]?'disabled':'')+'>'+esc(p.name)+(claims[String(i)]?' · зайнято':'')+'</button>').join("");
    choices.querySelectorAll("button:not(:disabled)").forEach(b=>b.onclick=()=>{pending=Number(b.dataset.index);render()});
    el("onlineConfirmName").textContent=pending===null?"":"Закріпити за цим телефоном: "+(list[pending]?.name||"")+"?";
  }
- const p=list.find((p,i)=>(p.index??i)===selected);name.textContent=confirmed?p.name:"Гравець";score.textContent=(confirmed?(p?.score||0):0).toLocaleString("uk-UA");
+ const p=list.find((p,i)=>(p.index??i)===selected);name.textContent=confirmed?p.name:"Гравець";score.textContent=state?.stage==="final"?"🔒":(confirmed?(p?.score||0):0).toLocaleString("uk-UA");
  const active=!exited&&!!state?.questionId&&state?.stage==="question",excluded=(state?.excluded||[]).includes(selected);
- buzz.disabled=!confirmed||!uid||!active||!(state?.eligible||[]).includes(selected)||excluded||busy||!!(winner&&winner.questionId===state?.questionId);
- status.textContent=lateWait?"Гра вже розпочалася. Дочекайся завершення поточного запитання, щоб обрати гравця.":confirmed&&active&&!(state?.eligible||[]).includes(selected)?"Ти приєднався під час запитання. Зможеш відповідати з наступного.":exited?"Ти вийшла з гри. Можна закрити цю вкладку.":ended?"":errorMessage?errorMessage:excluded&&active?"Ти вже відповідав на це запитання":active&&winner?.questionId===state?.questionId?(winner.uid===uid?"🏆 Ти натиснула першою!":"Першим натиснув: "+winner.name):!uid?"Підключення до Firebase…":!state?"Очікування кімнати":!list.length?"Ведуча ще не додала гравців":!confirmed?"Обери вільного гравця та підтвердь":!active?"Очікування запитання":pressed===state.questionId?"Кнопку натиснуто!":"Можна натискати!";
+ buzz.disabled=!confirmed||!uid||!active||excluded||busy||!!(winner&&winner.questionId===state?.questionId);
+ status.textContent=state?.stage==="final"?"Фінал: ставку та відповідь запиши на папері. Кнопка не використовується. Очікуємо підсумків.":lateWait?"Гра вже розпочалася. Дочекайся завершення поточного запитання, щоб обрати гравця.":exited?"Ти вийшла з гри. Можна закрити цю вкладку.":ended?"":errorMessage?errorMessage:excluded&&active?"Ти вже відповідав на це запитання":active&&winner?.questionId===state?.questionId?(winner.uid===uid?"🏆 Ти натиснула першою!":"Першим натиснув: "+winner.name):!uid?"Підключення до Firebase…":!state?"Очікування кімнати":!list.length?"Ведуча ще не додала гравців":!confirmed?"Обери вільного гравця та підтвердь":!active?"Очікування запитання":pressed===state.questionId?"Кнопку натиснуто!":"Можна натискати!";
 };
 el("onlineExit").onclick=()=>{exited=true;render()};
 el("onlineNo").onclick=()=>{pending=null;render()};
