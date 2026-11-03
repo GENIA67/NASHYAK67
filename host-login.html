@@ -21,4 +21,11 @@ body{background-color:#120a32!important;background-image:radial-gradient(ellipse
 button,.tile,.tabs button{transition:background-color .16s ease,box-shadow .16s ease,transform .16s ease}
 button:focus-visible{outline:2px solid #d3a6ff;outline-offset:3px}
 @media(max-width:700px){.brand img{width:clamp(105px,32vw,175px)}.brand{gap:8px!important}}
+
+/* Host login legibility pass */
+body{font-size:clamp(23px,2vw,30px)!important;line-height:1.35}
+.panel{width:min(620px,calc(100vw - 32px))!important}
+h2{font-size:clamp(32px,3vw,46px)!important}
+p,code{font-size:clamp(22px,2vw,30px)!important}
+button{font-size:clamp(26px,2.4vw,36px)!important;padding:18px 24px!important}
 </style></head><body><main class="panel"><h1 class="login-brand"><img src="./assets/svoyak-logo.svg" alt="СВОЯК"></h1><h2>Вхід ведучої</h2><p>Увійди через той Google-акаунт, яким керуватимеш грою.</p><button id="login">Увійти через Google</button><div id="identity"><p>Вхід успішний! Ідентифікатор ведучої (UID):</p><code id="uid"></code><button id="copy">Скопіювати UID</button><p>Це ідентифікатор користувача, не пароль. Надішли його в чат для налаштування прав.</p></div><p id="status"></p></main><script type="module">import{initializeApp}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";import{getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";const app=initializeApp({apiKey:"AIzaSyDl5jB8zlBsGAPJ029KWNL6mis9VFCM9zY",authDomain:"nashyak-207a0.firebaseapp.com",databaseURL:"https://nashyak-207a0-default-rtdb.europe-west1.firebasedatabase.app",projectId:"nashyak-207a0",appId:"1:298642237818:web:f4b14eafbe81af60548ec3"});const auth=getAuth(app);const $=s=>document.querySelector(s);onAuthStateChanged(auth,u=>{if(u){$("#identity").style.display="block";$("#uid").textContent=u.uid;$("#login").style.display="none";$("#status").textContent="";}});$("#login").onclick=async()=>{try{$("#status").textContent="Відкриваємо Google…";await signInWithPopup(auth,new GoogleAuthProvider())}catch(e){$("#status").textContent="Не вдалося увійти: "+e.code+" — "+e.message}};$("#copy").onclick=async()=>{try{await navigator.clipboard.writeText($("#uid").textContent);$("#status").textContent="UID скопійовано"}catch{$("#status").textContent="Виділи UID та скопіюй вручну"}};</script></body></html>
