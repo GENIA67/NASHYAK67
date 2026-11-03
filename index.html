@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101a35">
-<meta name="description" content="НАШЯК — власна вікторина у стилі телевізійного шоу">
+<meta name="description" content="СВОЯК — власна вікторина у стилі телевізійного шоу">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
-<title>НАШЯК — ігрова студія</title>
+<title>СВОЯК — ігрова студія</title>
 <style>
 :root{--bg:#0b1226;--panel:#142448;--panel2:#1c3566;--gold:#f4c44e;--text:#f7f8fc;--muted:#aebbd6;--good:#2eae79;--bad:#d85d65;--line:#304875}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b3261 0,#0b1226 55%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
@@ -18,7 +18,7 @@ main{max-width:1400px;margin:auto;padding:22px clamp(12px,3vw,34px) 60px}.screen
 .field{display:grid;gap:6px;margin:10px 0}.field label{font-size:13px;color:var(--muted);font-weight:700}.field input,.field textarea,.field select{width:100%;border:1px solid #40577f;background:#0d1932;color:white;border-radius:10px;padding:11px}.field textarea{min-height:75px;resize:vertical}.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.editor-cat{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;background:#10203d}.qrow{display:grid;grid-template-columns:90px 1fr auto;gap:8px;align-items:center;margin:8px 0}.qrow input{min-width:0}.modal{position:fixed;inset:0;background:#030817df;display:none;align-items:center;justify-content:center;padding:14px;z-index:20}.modal.open{display:flex}.dialog{width:min(760px,100%);max-height:92vh;overflow:auto;background:linear-gradient(145deg,#1a315c,#0f1d39);border:1px solid #5573a6;border-radius:20px;padding:clamp(16px,4vw,28px);box-shadow:0 25px 80px #0009}.question-points{color:var(--gold);font-weight:900}.question-text{font-size:clamp(22px,4vw,36px);font-weight:850;line-height:1.2;margin:20px 0}.answer{background:#0b1933;border:1px solid #3b5685;border-radius:12px;padding:14px;margin:14px 0;display:none}.answer.show{display:block}.media{max-width:100%;max-height:260px;border-radius:12px;margin:8px 0}.buzzers{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:16px}.buzz{min-height:65px;font-size:16px;background:#e8b93e}.buzz.locked{background:#354766;color:#aab8d2}.status{padding:10px 12px;border-radius:10px;background:#0b1933;color:#cbd8f0;margin:12px 0}.hidden{display:none!important}.footer-note{font-size:12px;color:var(--muted);margin-top:18px;line-height:1.5}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#253d69;color:#dce7ff;font-size:12px}
 @media(max-width:650px){header{align-items:flex-start;flex-direction:column}.board{grid-template-columns:repeat(var(--cols,5),145px)}.qrow{grid-template-columns:70px 1fr}.qrow button{grid-column:2}.players{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-/* НАШЯК — TV quiz visual skin v1: colors, typography, backgrounds only */
+/* СВОЯК — TV quiz visual skin v1: colors, typography, backgrounds only */
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@600;700;800&display=swap");
 :root{--bg:#080d25;--panel:#141b43;--panel2:#24265c;--gold:#b98aff;--text:#fff;--muted:#bdc4e6;--good:#37c6ac;--bad:#f05a82;--line:#51448e}body{font-family:"Manrope",system-ui,sans-serif;background:radial-gradient(ellipse at 90% 12%,#342177 0%,transparent 38%),radial-gradient(ellipse at 4% 88%,#172f83 0%,transparent 42%),#080d25}header{background:#090e2bdc;border-bottom-color:#775cbd55;box-shadow:0 4px 28px #4b36a020}.brand{font-family:"Unbounded",sans-serif;font-weight:800;color:#fff;text-shadow:0 0 18px #8755ff44}.brand span{color:#d3a5ff}h1,h2{font-family:"Unbounded",sans-serif;font-weight:700}button{background:linear-gradient(135deg,#9a5cf1,#6341dc);color:#fff;box-shadow:0 0 15px #8257ee28}button:hover{box-shadow:0 0 22px #a264f166}.secondary,.tab{background:#24244f;color:#f1efff}.tab.active{background:linear-gradient(135deg,#995df4,#6643df);color:#fff}.danger{background:#a92f61}.good{background:#188c85;color:#fff}.panel,.dialog{background:linear-gradient(145deg,#1b1c49,#101638);border-color:#6254a5;box-shadow:0 12px 38px #06051c88,0 0 20px #6f48d31a}.player,.editor-cat,.answer,.status{background:#171d48;border-color:#514887}.score,.question-points{color:#d7aaff}.category{background:linear-gradient(140deg,#27235b,#1b2255);border-color:#6b57b7}.tile{background:linear-gradient(145deg,#3b328c,#252969);color:#fff;border-color:#8264d6;box-shadow:inset 0 0 22px #895cf421}.tile.used{background:#161a38;color:#797fa9;border-color:#34365d;box-shadow:none}.field input,.field textarea,.field select{background:#0d1433;border-color:#5a4b8e;color:#fff}.modal{background:#05071de8}.buzz{background:linear-gradient(135deg,#9b62ef,#6744e2);color:#fff}.buzz.locked{background:#323654;color:#b5b9d1}.pill{background:#30265f;color:#e4d8ff}
 /* Reference artwork refinement: no DOM or layout changes */
@@ -62,6 +62,9 @@ header .brand{font-family:"Unbounded",sans-serif;font-style:italic;letter-spacin
 /* Reference typography pass */
 @import url("https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Russo+One&display=swap");
 body,button,input,textarea,select,.muted,.tag,.field label{font-family:"Oswald","Arial Narrow",sans-serif}body{font-size:17px}button{font-weight:600;letter-spacing:.015em}h1,h2,#questionModal .question-text,#scoreboard .score,#play .topline h1{font-family:"Oswald",sans-serif;font-weight:700;letter-spacing:.015em}.brand{font-family:"Russo One",Impact,sans-serif!important;font-style:italic!important;font-weight:900!important;letter-spacing:-.07em!important;transform:skew(-7deg);text-transform:uppercase;color:#fff!important;filter:drop-shadow(2px 3px 0 #060718)}.brand span{color:#fff!important}.brand::after{content:"";display:block;width:76%;height:3px;margin:0 auto;background:linear-gradient(90deg,transparent,#b965ff,#5b5af5,transparent);transform:skew(-26deg);box-shadow:0 0 9px #9b55ff77}header nav.tabs .tab{font-family:"Oswald",sans-serif;font-size:17px;letter-spacing:.025em}#board .category,#board .tile{font-family:"Oswald",sans-serif;font-weight:700}#questionModal #revealAnswer{box-shadow:0 0 23px #b56dff99}#play .topline{box-shadow:inset 0 0 30px #7851d519}
+
+/* СВОЯК — reference-matched flat heavy logo */
+.brand{font-family:"Russo One","Arial Black",Impact,sans-serif!important;font-style:normal!important;font-weight:900!important;font-stretch:normal!important;letter-spacing:-.065em!important;transform:none!important;text-transform:uppercase!important;color:#fff!important;text-shadow:0 2px 0 #070817,0 0 12px #ffffff18!important;filter:none!important}.brand::after{content:none!important;display:none!important}.brand span,.brand b{color:#fff!important}header .brand{font-style:normal!important;transform:none!important}header .brand::after{content:none!important;display:none!important}
 </style>
 </head>
 <body>
@@ -90,7 +93,7 @@ body,button,input,textarea,select,.muted,.tag,.field label{font-family:"Oswald",
   <div id="editRounds" class="tabs" style="margin-bottom:14px"></div>
   <div class="formgrid"><div class="field"><label>Назва раунду</label><input id="roundName" placeholder="Наприклад, Раунд 1"></div><div class="field" style="align-content:end"><button id="deleteRound" class="danger small">Видалити цей раунд</button></div></div>
   <div class="formgrid">
-   <div class="field"><label>Назва гри</label><input id="gameTitle" value="НАШЯК"></div>
+   <div class="field"><label>Назва гри</label><input id="gameTitle" value="СВОЯК"></div>
    <div class="field"><label>Бали за запитання в цьому раунді (через кому)</label><input id="values" value="100, 200, 300, 400, 500"></div>
   </div>
   <div id="editor"></div>
@@ -118,7 +121,7 @@ body,button,input,textarea,select,.muted,.tag,.field label{font-family:"Oswald",
 </div></div>
 <script>
 const $=s=>document.querySelector(s);
-const defaultGame={title:"НАШЯК",values:[100,200,300,400,500],players:[{name:"Гравець 1",score:0},{name:"Гравець 2",score:0},{name:"Гравець 3",score:0}],categories:[
+const defaultGame={title:"СВОЯК",values:[100,200,300,400,500],players:[{name:"Гравець 1",score:0},{name:"Гравець 2",score:0},{name:"Гравець 3",score:0}],categories:[
 {name:"КІНО",questions:[["Який фільм отримав «Оскар» за найкращий фільм у 1994 році?","«Список Шиндлера»",""],["Як звати чарівника зі шрамом на лобі?","Гаррі Поттер",""],["У якому місті живе Бетмен?","Ґотем",""],["Хто режисер фільму «Титанік»?","Джеймс Кемерон",""],["Як називається школа магії у Гаррі Поттері?","Гоґвортс",""]]},
 {name:"МУЗИКА",questions:[["Скільки струн має стандартна гітара?","Шість",""],["Який інструмент має клавіші та педалі?","Фортепіано",""],["З якої країни гурт ABBA?","Швеція",""],["Як називається людина, що керує оркестром?","Диригент",""],["Який музичний знак підвищує ноту?","Дієз",""]]},
 {name:"ІСТОРІЯ",questions:[["У якому році проголосили незалежність України?","1991",""],["Яке місто було столицею Русі?","Київ",""],["Хто написав «Кобзар»?","Тарас Шевченко",""],["Як називали воїнів Запорозької Січі?","Козаки",""],["Яка цивілізація збудувала піраміди в Гізі?","Стародавні єгиптяни",""]]},
@@ -269,7 +272,7 @@ function renderFinalLive(){
  const back=$("#backFinalTopics");if(back)back.onclick=()=>{if(!confirm("Повернутися до вибору теми?"))return;f.stage="topics";persist();renderFinalLive();publishFinal()};
  $("#finalLive").querySelectorAll("[data-final-apply]").forEach(b=>b.onclick=()=>{const i=Number(b.dataset.finalApply),input=$("#finalLive").querySelector('[data-final-delta="'+i+'"]');const raw=input.value.trim(),n=Number(raw);if(!raw||!Number.isSafeInteger(n)||n===0)return alert("Введи цілу ненульову суму зі знаком, наприклад +1200 або -1200.");if(!confirm("Змінити рахунок "+game.players[i].name+" на "+(n>0?"+":"")+n+" балів?"))return;changeScore(i,n);renderFinalLive();publishFinal()});
 }
-function renderAll(){renderRounds();document.title=game.title+" — НАШЯК";$("#gameTitle").value=game.title;$("#values").value=game.values.join(", ");renderScores();renderBoard();renderEditor();renderPlayerEditor();renderFinal()}
+function renderAll(){renderRounds();document.title=game.title+" — СВОЯК";$("#gameTitle").value=game.title;$("#values").value=game.values.join(", ");renderScores();renderBoard();renderEditor();renderPlayerEditor();renderFinal()}
 document.querySelectorAll("[data-screen]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t===b));document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===b.dataset.screen));if(b.dataset.screen==="final")renderFinal()});
 $("#addRound").onclick=()=>{
  saveRoundSettings();persist();
@@ -290,7 +293,7 @@ $("#deleteRound").onclick=()=>{
 $("#roundName").onchange=()=>{game.rounds[game.activeRound].name=$("#roundName").value.trim()||"Раунд "+(game.activeRound+1);persist();renderRounds()};
 $("#addCategory").onclick=()=>{game.categories.push({name:"НОВА КАТЕГОРІЯ",questions:game.values.map(()=>["","",""])});persist();renderAll()};
 $("#addPlayer").onclick=()=>{let name=$("#newPlayer").value.trim();if(!name)return;game.players.push({name,score:0});$("#newPlayer").value="";persist();renderAll()};
-$("#saveGame").onclick=()=>{game.title=$("#gameTitle").value||"НАШЯК";let vals=parsePoints($("#values").value);if(!vals.length)return alert("Вкажи хоча б одне значення балів.");game.values=vals;game.rounds[game.activeRound].values=vals;game.categories.forEach(c=>{delete c.values;while(c.questions.length<vals.length)c.questions.push(["","",""])});persist();renderAll();alert("Гру збережено на цьому пристрої!")};
+$("#saveGame").onclick=()=>{game.title=$("#gameTitle").value||"СВОЯК";let vals=parsePoints($("#values").value);if(!vals.length)return alert("Вкажи хоча б одне значення балів.");game.values=vals;game.rounds[game.activeRound].values=vals;game.categories.forEach(c=>{delete c.values;while(c.questions.length<vals.length)c.questions.push(["","",""])});persist();renderAll();alert("Гру збережено на цьому пристрої!")};
 $("#exportGame").onclick=()=>{syncRound();const blob=new Blob([JSON.stringify(game,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="nashyак-game.json";a.click();URL.revokeObjectURL(a.href)};
 $("#importGame").onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());game=normalizeGame(data);persist();renderAll();alert("Гру імпортовано!")}catch(err){alert("Не вдалося прочитати файл гри.")}e.target.value=""};
 $("#resetUsed").onclick=()=>{game.used={};persist();renderBoard();publishAudience("board")};
