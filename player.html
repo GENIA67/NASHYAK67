@@ -30,6 +30,18 @@ body{background-color:#120a32!important;background-image:radial-gradient(ellipse
 button,.tile,.tabs button{transition:background-color .16s ease,box-shadow .16s ease,transform .16s ease}
 button:focus-visible{outline:2px solid #d3a6ff;outline-offset:3px}
 @media(max-width:700px){.brand img{width:clamp(105px,32vw,175px)}.brand{gap:8px!important}}
+
+/* Mobile player legibility pass */
+body{font-size:clamp(23px,5.5vw,29px)!important;line-height:1.3}
+.wrap .brand{justify-content:center!important}
+.wrap .brand img{width:clamp(165px,48vw,260px)!important}
+.hint,.label,.foot{font-size:clamp(21px,5vw,26px)!important;line-height:1.35}
+.name{font-size:clamp(31px,7vw,42px)!important}
+.score{font-size:clamp(72px,18vw,105px)!important}
+.status{font-size:clamp(28px,6.5vw,38px)!important}
+.choice,select,button:not(.buzzer),#onlineExit{font-size:clamp(25px,6vw,34px)!important;line-height:1.2}
+.buzzer{font-size:clamp(43px,10vw,60px)!important}
+.resultRow{font-size:clamp(23px,5.5vw,30px)!important}
 </style></head><body><div class="wrap"><div class="brand"><img src="./assets/svoyak-logo.svg" alt="СВОЯК"></div><p class="hint">Тестовий екран гравця</p><section id="onlineChoose" hidden><p class="hint">Обери свого гравця</p><div id="onlineChoices" class="choicegrid"></div><div id="onlineConfirm" hidden class="confirmbox"><p id="onlineConfirmName"></p><button id="onlineYes" class="choice">Підтвердити вибір</button><button id="onlineNo" class="choice secondary">Назад</button></div></section><select id="player" aria-label="Оберіть гравця"></select><div class="scorecard"><div class="name" id="name">Гравець</div><div class="score" id="score">0</div><div class="label">Мої бали</div></div><button class="buzzer" id="buzz" disabled>ТИСНИ!</button><section id="onlineResults" hidden><h2 id="resultTitle">🏆 Підсумки гри</h2><p id="resultMine"></p><div id="resultList"></div><p id="resultSession"></p><button id="onlineExit" hidden>Вийти з гри</button></section><div class="status" id="status">Очікування запитання</div><p class="foot">Демонстраційний режим. Працює з панеллю ведучої лише в тому самому браузері та профілі. З інших телефонів поки не синхронізується.</p></div><script>
 const STATE="nashyak-preview-audience-v1",BUZZ="nashyak-preview-demo-buzz-v1",SELECT="nashyak-preview-demo-player-v1";
 const $=s=>document.querySelector(s);let data=null,pressedFor="";
