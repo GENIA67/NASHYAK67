@@ -70,11 +70,22 @@ body,button,input,textarea,select,.muted,.tag,.field label{font-family:"Oswald",
 @font-face{font-family:"AA Duke Fill";src:url("./fonts/AA-Duke-UA%20(1).woff2") format("woff2");font-style:normal;font-weight:100 900;font-display:swap}
 body,button,input,textarea,select,h1,h2,h3,.tag,.hint,.status,.label,.name,.score,.scorecard,.player,.category,.tile,#qtext,#category,#answer,#notice,.quiz-table th,.quiz-table td,.choice,.tab,.pill,.field label{font-family:"AA Duke Fill","Oswald","Arial Narrow",sans-serif!important}
 .brand,header .brand{font-family:"Russo One","Arial Black",Impact,sans-serif!important}
+
+/* СВОЯК — supplied wordmark and show-like purple interface */
+.brand{display:flex!important;align-items:center!important;gap:14px!important;transform:none!important;filter:none!important;text-shadow:none!important;letter-spacing:normal!important}
+.brand img{display:block;width:clamp(100px,11vw,190px);height:auto;aspect-ratio:1827/320;object-fit:contain;flex-shrink:0}
+.brand::after{display:none!important;content:none!important}
+.brand #round{font-family:"AA Duke Fill",sans-serif!important;font-size:clamp(13px,1.4vw,22px);letter-spacing:.01em;color:#d8c7ff!important}
+.login-brand img{display:block;width:min(85%,320px);height:auto;margin:0 auto 14px}
+body{background-color:#120a32!important;background-image:radial-gradient(ellipse at 10% 0%,#5b179c60,transparent 48%),radial-gradient(ellipse at 95% 70%,#5923ae55,transparent 55%),linear-gradient(135deg,#120824,#211052 60%,#110a30)!important}
+button,.tile,.tabs button{transition:background-color .16s ease,box-shadow .16s ease,transform .16s ease}
+button:focus-visible{outline:2px solid #d3a6ff;outline-offset:3px}
+@media(max-width:700px){.brand img{width:clamp(105px,32vw,175px)}.brand{gap:8px!important}}
 </style>
 </head>
 <body>
 <header>
- <div><div class="brand">СВОЯК</div><div class="tag">ІГРОВА СТУДІЯ · ВІКТОРИНА</div></div>
+ <div><div class="brand"><img src="./assets/svoyak-logo.svg" alt="СВОЯК"></div><div class="tag">ІГРОВА СТУДІЯ · ВІКТОРИНА</div></div>
  <nav class="tabs">
   <button class="tab active" data-screen="play">Гра</button>
   <button class="tab" data-screen="edit">Редактор</button>
