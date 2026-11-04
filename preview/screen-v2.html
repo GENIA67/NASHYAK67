@@ -91,6 +91,28 @@ button{font-size:clamp(22px,1.6vw,30px)!important}
 #responding,#notice,.award-sub{font-size:clamp(28px,2.5vw,46px)!important}
 .final-topic{font-size:clamp(32px,3vw,56px)!important}
 @media(max-width:700px){.quiz-table th{font-size:32px!important}.quiz-table td{font-size:38px!important}#qtext{font-size:clamp(36px,8vw,58px)!important}}
+
+/* Fullscreen audience board: distribute cells inside available height. */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{min-height:100dvh}
+header{padding:clamp(7px,1vh,14px) clamp(12px,2vw,25px)}
+main{padding:clamp(7px,1vh,18px) 2vw}
+#scores{margin:clamp(3px,.6vh,10px) 0;gap:clamp(4px,.6vw,10px)}
+#scores .player{padding:clamp(4px,.7vh,11px) clamp(7px,1vw,18px);min-width:0}
+#board{min-width:0}
+.quiz-table{min-width:0;width:100%;border-spacing:clamp(2px,.4vw,6px)}
+.quiz-table th,.quiz-table td{height:auto;padding:3px 2px}
+.quiz-table th{font-size:clamp(19px,2.3vw,48px)!important}
+.quiz-table td{font-size:clamp(25px,3.2vw,62px)!important}
+@media(min-width:701px){
+body:has(#board:not([style*="display: none"])){height:100dvh;overflow:hidden}
+main{height:calc(100dvh - 65px);min-height:0;display:flex;flex-direction:column}
+#board{flex:1;min-height:0}
+#board .board{height:100%;min-height:0;overflow:hidden}
+#board .quiz-table{height:100%;min-height:0}
+#board .quiz-table tr{height:auto}
+}
+@media(max-width:700px){.quiz-table{min-width:0!important}.quiz-table th{font-size:clamp(13px,3vw,23px)!important}.quiz-table td{font-size:clamp(17px,4vw,31px)!important}#scores .player{padding:5px}}
 </style></head><body>
 <header><div class="brand"><img src="./assets/svoyak-logo.svg" alt="СВОЯК"> <span id="round"></span></div><button id="fullscreen">На весь екран ⛶</button></header>
 <main><div id="scores"></div><div id="board"></div><div id="finalTopicsScreen" style="display:none"></div><div id="question"><div id="category"></div><div id="qtext"></div><div id="media"></div><div id="responding"></div><div id="answer"></div></div><div id="notice"></div><section id="awards"><div class="award-sub">СВОЯК · РЕЗУЛЬТАТИ ГРИ</div><h1>🏆 ПІДСУМКИ</h1><div id="awardList"></div><div id="awardGreeting"></div><div id="awardConfetti"></div></section></main>
