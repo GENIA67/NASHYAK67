@@ -97,57 +97,6 @@ h2{font-size:clamp(31px,2.2vw,42px)!important;line-height:1.12}
 .panel,.player{min-width:0}
 @media(max-width:700px){body{font-size:22px!important}button,select,input,textarea{font-size:22px!important}h1,#play h1{font-size:36px!important}h2{font-size:30px!important}.tag,header .tag,.footer-note,.muted,.pill,.field label{font-size:19px!important}.board button,.board .cell,.board .category,.board .value,.tile{font-size:25px!important}}
 
-/* Viewport-fit game mode: editor and settings remain scrollable by design. */
-html,body{width:100%;max-width:100%;overflow-x:hidden}
-#play.active{min-width:0}
-#play #board,#play .board-wrap{min-width:0;overflow:visible}
-#play .board{grid-template-columns:repeat(var(--cols,5),minmax(0,1fr))!important;gap:clamp(3px,.55vh,8px);overflow:visible;padding-bottom:0}
-#play .board-col{min-width:0;gap:clamp(3px,.55vh,8px)}
-#play .category{min-height:0;padding:clamp(3px,.6vh,9px) 3px;line-height:1.06;font-size:clamp(17px,1.5vw,30px)!important}
-#play .tile{min-height:0;padding:clamp(4px,.7vh,12px) 2px;font-size:clamp(21px,1.9vw,37px)!important;line-height:1.05}
-@media(min-width:1050px){
-body:has(#play.active){height:100dvh;overflow:hidden}
-body:has(#play.active) main{height:100dvh;min-height:0;overflow:hidden;padding:clamp(8px,1vh,18px) clamp(9px,1.1vw,22px)}
-#play.active{height:100%;grid-template-rows:auto auto minmax(0,1fr);grid-template-columns:minmax(0,1fr) clamp(175px,17vw,260px);gap:clamp(5px,.8vh,13px);align-items:stretch}
-#play .topline{min-height:0;padding:clamp(7px,1vh,13px)!important}
-#play .topline h1{font-size:clamp(27px,2.5vw,45px)!important}
-#play .topline .muted{font-size:clamp(16px,1.1vw,21px)!important}
-#play #playRounds{margin:0!important;align-self:center;gap:4px}
-#play #playRounds button{font-size:clamp(16px,1.2vw,24px)!important;padding:clamp(5px,.7vh,9px) 9px!important}
-#play #board{grid-row:3;align-self:stretch;min-height:0}
-#play .board{height:100%;align-items:stretch}
-#play .board-col{grid-template-rows:repeat(6,minmax(0,1fr));min-height:0}
-#play .category,#play .tile{height:100%;min-height:0}
-#play #scoreboard{grid-column:2;grid-row:1 / 4;position:static;min-height:0;overflow:auto;gap:clamp(4px,.65vh,9px);margin:0}
-#play #scoreboard .player{padding:clamp(5px,.8vh,11px);flex-shrink:1}
-#play #scoreboard .name{font-size:clamp(17px,1.3vw,26px)!important}
-#play #scoreboard .score{font-size:clamp(27px,2.2vw,43px)!important}
-#play #scoreboard button{font-size:clamp(15px,1.1vw,21px)!important;padding:5px 7px!important}
-#play .footer-note{display:none}
-}
-@media(max-width:1049px){
-#play .board{gap:4px}
-#play .board-col{min-width:0;gap:4px}
-#play .category{font-size:clamp(14px,2vw,24px)!important}
-#play .tile{font-size:clamp(17px,2.8vw,29px)!important}
-}
-@media(max-width:700px){
-#play .board{grid-template-columns:repeat(var(--cols,5),minmax(0,1fr))!important}
-#play .category{font-size:clamp(12px,2.8vw,20px)!important;padding:5px 1px}
-#play .tile{font-size:clamp(16px,4vw,26px)!important;padding:8px 1px}
-}
-@media(min-width:701px) and (max-width:1049px) and (min-height:600px){
-body:has(#play.active){height:100dvh;overflow:hidden}
-body:has(#play.active) main{height:calc(100dvh - 90px);overflow:hidden;padding:8px 14px}
-#play.active{height:100%;display:grid;grid-template-rows:auto auto auto minmax(0,1fr);gap:6px}
-#play .topline{margin:0}
-#play #playRounds{margin:0!important}
-#play #scoreboard{margin:0}
-#play #board{min-height:0}
-#play .board{height:100%}
-#play .board-col{grid-template-rows:repeat(6,minmax(0,1fr))}
-#play .footer-note{display:none}
-}
 </style>
 </head>
 <body>
