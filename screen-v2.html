@@ -92,10 +92,20 @@ button{font-size:clamp(22px,1.6vw,30px)!important}
 .final-topic{font-size:clamp(32px,3vw,56px)!important}
 @media(max-width:700px){.quiz-table th{font-size:32px!important}.quiz-table td{font-size:38px!important}#qtext{font-size:clamp(36px,8vw,58px)!important}}
 
+/* Online show presentation */
+#showIntro{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;flex-direction:column;gap:clamp(16px,3vh,34px);padding:5vw;text-align:center;background:radial-gradient(ellipse at center,#30216d 0%,#141438 60%,#080c25 100%)}
+#showIntro.visible{display:flex}
+#showIntro img{width:min(72vw,850px);height:auto;filter:drop-shadow(0 0 36px #a06aff55)}
+#showIntro .showRound{font-size:clamp(70px,11vw,190px);line-height:1.1;color:#fff;text-shadow:0 0 55px #a66aff;font-weight:900}
+#showIntro .showSubtitle{font-size:clamp(23px,3vw,50px);color:#c5b4ff}
+#showIntro .showNames{font-size:clamp(19px,2.2vw,35px);color:#fff;max-width:85vw;line-height:1.5}
 </style></head><body>
 <header><div class="brand"><img src="./assets/svoyak-logo.svg" alt="СВОЯК"> <span id="round"></span></div><button id="fullscreen">На весь екран ⛶</button></header>
 <main><div id="scores"></div><div id="board"></div><div id="finalTopicsScreen" style="display:none"></div><div id="question"><div id="category"></div><div id="qtext"></div><div id="media"></div><div id="responding"></div><div id="answer"></div></div><div id="notice"></div><section id="awards"><div class="award-sub">СВОЯК · РЕЗУЛЬТАТИ ГРИ</div><h1>🏆 ПІДСУМКИ</h1><div id="awardList"></div><div id="awardGreeting"></div><div id="awardConfetti"></div></section></main>
+<div id="showIntro" aria-live="polite"><img id="showLogo" src="./assets/svoyak-logo.svg" alt="СВОЯК"><div id="showRound" class="showRound" hidden></div><div id="showSubtitle" class="showSubtitle"></div><div id="showNames" class="showNames"></div></div>
 <script>
+const SHOW_KEY="nashyak-preview-show-stage-v1";
+function renderShow(data){let show;try{show=JSON.parse(localStorage.getItem(SHOW_KEY)||"null")}catch{}const stage=show?.stage;const visible=stage==="lobby"||stage==="round_intro";$("#showIntro").classList.toggle("visible",visible);if(!visible)return;$("#showLogo").hidden=stage==="round_intro";$("#showRound").hidden=stage!=="round_intro";$("#showRound").textContent=show?.round||"Раунд 1";$("#showSubtitle").textContent=stage==="lobby"?"ОЧІКУЄМО НА ГРАВЦІВ":"ПРИГОТУЙТЕСЬ ДО ГРИ";const players=(data?.players||[]).filter((p,i)=>i!==0);$("#showNames").textContent=stage==="lobby"?(players.length?"Учасники: "+players.map(p=>p.name).join(" · "):"Гравці приєднуються…"):"";}
 const KEY="nashyak-preview-audience-v1", $=s=>document.querySelector(s);
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function mediaHTML(url){if(!url)return "";if(/^data:image\/(png|jpeg|webp|gif);base64,/i.test(url))return '<img class="media" src="'+url+'" alt="Фото до запитання">';if(!/^https?:\/\//i.test(url))return "";const safe=esc(url);if(/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url))return '<img class="media" src="'+safe+'">';if(/\.(mp4|webm)(\?|$)/i.test(url))return '<video class="media" autoplay controls src="'+safe+'"></video>';if(/\.(mp3|wav|ogg)(\?|$)/i.test(url))return '<audio controls src="'+safe+'"></audio>';return '<a href="'+safe+'" target="_blank" rel="noopener" style="color:#f4c44e">Відкрити матеріал</a>'}
@@ -113,7 +123,7 @@ function renderAwards(data){
  const colors=["#f4c44e","#ffffff","#71b9ff","#ff759f","#85edc3"];
  $("#awardConfetti").innerHTML=Array.from({length:65},(_,i)=>'<i class="confetti" style="--x:'+((i*73.7)%100)+'%;--c:'+colors[i%colors.length]+';--d:'+(finish+(i%12)*.11)+'s"></i>').join("");
 }
-function render(){let data;try{data=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!data){$("#notice").textContent="Відкрий гру в панелі ведучої, щоб розпочати.";return}
+function render(){let data;try{data=JSON.parse(localStorage.getItem(KEY))}catch(e){}renderShow(data);if(!data){$("#notice").textContent="Відкрий гру в панелі ведучої, щоб розпочати.";return}
 $("#round").textContent="· "+(data.round||"");
  if(data.stage==="awards"){$("#scores").style.display="none";$("#board").style.display="none";$("#question").style.display="none";$("#finalTopicsScreen").style.display="none";$("#notice").style.display="none";$("#awards").style.display="block";renderAwards(data);return;}
  lastAwardsId=null;$("#awards").style.display="none";$("#scores").style.display="flex";$("#notice").style.display="block";
@@ -150,7 +160,7 @@ if(data.stage==="question"&&q){
  $("#board").innerHTML='<table class="quiz-table"><colgroup><col style="width:40%">'+Array.from({length:count},()=>'<col style="width:'+60/count+'%">').join('')+'</colgroup><tbody>'+
  cats.map(c=>'<tr><th scope="row">'+esc(c.name)+'</th>'+Array.from({length:count},(_,i)=>{const t=(c.tiles||[])[i];return '<td class="'+(t?.used?'used':'')+'">'+(t?(t.used?'':esc(t.value)):'')+'</td>'}).join('')+'</tr>').join('')+'</tbody></table>';
  }}
-window.addEventListener("storage",e=>{if(e.key===KEY)render()});
+window.addEventListener("storage",e=>{if(e.key===KEY||e.key===SHOW_KEY)render()});
 $("#fullscreen").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
 render();
 </script></body></html>
