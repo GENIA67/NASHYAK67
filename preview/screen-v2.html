@@ -147,12 +147,12 @@ if(data.stage==="final"){
 $("#finalTopicsScreen").style.display="none";
 if(data.stage==="question"&&q){
  $("#board").style.display="none";$("#question").style.display="flex";$("#notice").textContent="";
- $("#category").textContent=q.modifier?"МОДИФІКАТОР":q.category+" · "+q.points+" балів";
- $("#qtext").textContent=q.modifier&&!q.modifierRevealed?"МОДИФІКАТОР":q.text;
+ $("#category").textContent=q.secret?"ПИТАННЯ З СЕКРЕТОМ":q.modifier?"МОДИФІКАТОР":q.category+" · "+q.points+" балів";
+ $("#qtext").textContent=q.secret&&!q.secretOpened?"ПИТАННЯ З СЕКРЕТОМ · Віддайте це питання іншому гравцю":q.modifier&&!q.modifierRevealed?"МОДИФІКАТОР":q.text;
  $("#answer").innerHTML='<div style="font-size:clamp(22px,3vw,42px);font-weight:900;margin-bottom:16px">Відповідь:</div>'+(q.answer?'<div>'+esc(q.answer)+'</div>':'')+(q.answerImage&&/^data:image\/(png|jpeg|webp|gif);base64,/i.test(q.answerImage)?'<img src="'+q.answerImage+'" alt="Фото правильної відповіді" style="display:block;max-width:85vw;max-height:55vh;object-fit:contain;margin:16px auto 0;border-radius:14px">':'');
- $("#answer").style.display=!q.modifier&&q.shown?"block":"none";$("#qtext").style.display=q.modifier||!q.shown?"block":"none";
- $("#media").innerHTML=q.modifier||q.shown?"":mediaHTML(q.media);
- $("#responding").textContent=q.modifier?(data.responding?"Модифікатор отримує: "+data.responding:"Перший натисне — забирає модифікатор"):q.shown?"":data.responding?"Відповідає: "+data.responding:"";
+ $("#answer").style.display=(q.secret||!q.modifier)&&q.shown?"block":"none";$("#qtext").style.display=q.modifier||!q.shown?"block":"none";
+ $("#media").innerHTML=q.modifier||q.shown||(q.secret&&!q.secretOpened)?"":mediaHTML(q.media);
+ $("#responding").textContent=q.secret?(q.secretOpened?"Відповідає: "+(q.secretRecipient||"обраний гравець"):"Очікуємо вибору отримувача"):q.modifier?(data.responding?"Модифікатор отримує: "+data.responding:"Перший натисне — забирає модифікатор"):q.shown?"":data.responding?"Відповідає: "+data.responding:"";
  }else{
  $("#board").style.display="block";$("#question").style.display="none";$("#notice").textContent="";
  const cats=data.categories||[];
