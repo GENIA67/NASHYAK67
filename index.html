@@ -145,7 +145,7 @@ h2{font-size:clamp(31px,2.2vw,42px)!important;line-height:1.12}
  <div class="topline"><div><span class="pill" id="qCategory"></span><div class="question-points" id="qPoints"></div></div><button class="secondary small" id="closeQuestion">Закрити ✕</button></div>
  <div class="question-text" id="qText"></div><div id="qMedia"></div>
  <div id="hostAnswerPreview" style="background:#122c38;border:1px solid #399b81;border-radius:12px;padding:12px 16px;margin:14px 0"><b style="color:#8ce9c2">🔒 Правильна відповідь · лише для ведучої</b><div id="hostAnswerContent" style="margin-top:8px;font-size:19px;font-weight:700"></div></div>
- <div class="answer" id="qAnswer"></div>
+ <div class="answer" id="qAnswer"></div><div id="modifierControls" style="display:none;margin:14px 0"><button id="revealModifier" disabled>Відкрити текст модифікатора</button><div id="modifierHostHint" class="status">Очікуємо першого натискання гравця.</div></div>
  <div class="tabs" id="answerControls"><button id="revealAnswer">Показати відповідь</button><button class="secondary" id="resetBuzz">Скинути кнопку</button></div>
  <div class="status" id="buzzStatus">Хто перший натисне кнопку — той відповідає!</div>
  <div class="status" id="hostInstructions">Панель ведучої: обери гравця, який натиснув першим. Після неправильної відповіді обери наступного.</div><div class="buzzers" id="buzzers"></div>
@@ -202,7 +202,7 @@ function audienceState(stage="board"){
  const r=game.rounds[game.activeRound];
  return {stage,title:game.title,round:r.name,players:game.players.map(p=>({name:p.name,score:p.score})),
   categories:game.categories.map((c,ci)=>({name:c.name,tiles:game.values.map((v,qi)=>({value:v,used:!!game.used[ci+"-"+qi]}))})),
-  question:current?{instanceId:current.instanceId,category:game.categories[current.ci].name,points:current.value,text:game.categories[current.ci].questions[current.qi]?.[0]||"",answer:game.categories[current.ci].questions[current.qi]?.[1]||"",answerImage:game.categories[current.ci].questions[current.qi]?.[3]||"",modifier:!!game.categories[current.ci].questions[current.qi]?.[4],media:game.categories[current.ci].questions[current.qi]?.[2]||"",shown:answerShown}:null,
+  question:current?{instanceId:current.instanceId,category:game.categories[current.ci].name,points:current.value,text:game.categories[current.ci].questions[current.qi]?.[0]||"",answer:game.categories[current.ci].questions[current.qi]?.[1]||"",answerImage:game.categories[current.ci].questions[current.qi]?.[3]||"",modifier:!!game.categories[current.ci].questions[current.qi]?.[4],modifierRevealed:answerShown,media:game.categories[current.ci].questions[current.qi]?.[2]||"",shown:answerShown}:null,
   responding:buzzed===null?null:game.players[buzzed]?.name||null};
 }
 function publishAudience(stage){if(document.querySelector("#final.screen.active")&&game.final.stage!=="setup"){publishFinal();return}try{localStorage.setItem(SCREEN_KEY,JSON.stringify(audienceState(stage)))}catch(e){alert("Фото завелике для передачі на екран гравців. Спробуй менше зображення (до 200 КБ).")}}
@@ -214,16 +214,17 @@ function openQuestion(key){
  current={key,ci,qi,value:game.values[qi]||100,instanceId:Date.now()+"-"+Math.random().toString(36).slice(2)};buzzed=null;wrongPlayers=new Set();answerShown=false;
  $("#qCategory").textContent=c.name;$("#qPoints").textContent=current.value+" балів";
  const modifier=!!q[4];
+ $("#modifierControls").style.display=modifier?"block":"none";$("#revealModifier").disabled=true;$("#modifierHostHint").textContent="Очікуємо першого натискання гравця.";$("#qCategory").textContent=modifier?"МОДИФІКАТОР":c.name;
  $("#answerControls").style.display=modifier?"none":"flex";
  $("#hostInstructions").style.display=modifier?"none":"block";
- $("#buzzers").style.display=modifier?"none":"flex";
+ $("#buzzers").style.display="flex";
  $("#scoreControls").style.display=modifier?"none":"flex";
- $("#hostAnswerPreview").style.display=modifier?"none":"block";$("#hostAnswerContent").innerHTML=(q[1]?`<div>${esc(q[1])}</div>`:`<div style="color:#aebbd6">Відповідь не заповнено в редакторі.</div>`)+(q[3]?`<img src="${q[3]}" alt="Зображення правильної відповіді для ведучої" style="display:block;max-width:100%;max-height:30vh;object-fit:contain;border-radius:10px;margin-top:10px">`:"");
- $("#qText").textContent=q[0];$("#qAnswer").innerHTML=(q[1]?`<div>${esc(q[1])}</div>`:"")+(q[3]?`<img src="${q[3]}" alt="Фото правильної відповіді" style="max-width:100%;max-height:40vh;object-fit:contain;border-radius:12px;margin-top:12px">`:"");
+ $("#hostAnswerPreview").style.display=modifier?"block":"block";$("#hostAnswerContent").innerHTML=(q[1]?`<div>${esc(q[1])}</div>`:`<div style="color:#aebbd6">Відповідь не заповнено в редакторі.</div>`)+(q[3]?`<img src="${q[3]}" alt="Зображення правильної відповіді для ведучої" style="display:block;max-width:100%;max-height:30vh;object-fit:contain;border-radius:10px;margin-top:10px">`:"");
+ $("#qText").textContent=modifier?"МОДИФІКАТОР":q[0];$("#modifierHostHint").textContent=modifier?"Дія (лише для ведучої): "+q[0]:"";$("#qAnswer").innerHTML=(q[1]?`<div>${esc(q[1])}</div>`:"")+(q[3]?`<img src="${q[3]}" alt="Фото правильної відповіді" style="max-width:100%;max-height:40vh;object-fit:contain;border-radius:12px;margin-top:12px">`:"");
  $("#qAnswer").classList.remove("show");$("#revealAnswer").textContent="Показати відповідь";
  $("#qMedia").innerHTML=!modifier&&q[2]?mediaHTML(q[2]):"";
- $("#buzzStatus").textContent=modifier?"Модифікатор: гравець, який обрав клітинку, отримує зазначений ефект. Зміни рахунок вручну на панелі гравців і закрий клітинку.":"Очікуємо, хто натисне кнопку.";
- $("#questionModal").classList.add("open");if(!modifier)renderBuzzers();publishAudience("question");
+ $("#buzzStatus").textContent=modifier?"Модифікатор: перший натиск кнопки визначить отримувача.":"Очікуємо, хто натисне кнопку.";
+ $("#questionModal").classList.add("open");renderBuzzers();publishAudience("question");
 }
 function mediaHTML(url){if(/^data:image\/(png|jpeg|webp|gif);base64,/i.test(url))return `<img class="media" src="${url}" alt="Ілюстрація до питання">`;if(/\.(mp4|webm)(\?|$)/i.test(url))return `<video class="media" controls src="${esc(url)}"></video>`;if(/\.(mp3|wav|ogg)(\?|$)/i.test(url))return `<audio controls src="${esc(url)}"></audio>`;if(/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url))return `<img class="media" src="${esc(url)}" alt="Ілюстрація до питання">`;return `<p><a style="color:#f4c44e" target="_blank" rel="noopener" href="${esc(url)}">Відкрити матеріал до питання ↗</a></p>`}
 function renderBuzzers(){
@@ -232,12 +233,13 @@ function renderBuzzers(){
  el.querySelectorAll("[data-buzz]").forEach(b=>b.onclick=()=>{
   if(buzzed!==null||answerShown)return;
   buzzed=+b.dataset.buzz;
-  $("#buzzStatus").textContent="Відповідає: "+game.players[buzzed].name;
+  $("#buzzStatus").textContent="ПЕРШИМ НАТИСНУВ: "+game.players[buzzed].name;if(game.categories[current.ci]?.questions[current.qi]?.[4]){$("#revealModifier").disabled=false;$("#modifierHostHint").textContent="Отримувач: "+game.players[buzzed].name+" · Дія: "+game.categories[current.ci].questions[current.qi][0];}
   renderBuzzers();publishAudience("question");
  });
  $("#markCorrect").disabled=buzzed===null||answerShown;
  $("#markWrong").disabled=buzzed===null||answerShown;
 }
+$("#revealModifier").onclick=()=>{if(!current||buzzed===null||!game.categories[current.ci]?.questions[current.qi]?.[4])return;answerShown=true;$("#revealModifier").disabled=true;$("#buzzStatus").textContent="Модифікатор отримує: "+game.players[buzzed].name+". Застосуй дію вручну та закрий клітинку.";renderBuzzers();publishAudience("question");};
 function finishQuestion(correct){
  if(!current||buzzed===null||answerShown)return;
  const i=buzzed;
@@ -249,7 +251,7 @@ function finishQuestion(correct){
 }
 function completeQuestion(){
  if(!current)return;
- if(buzzed!==null&&!answerShown&&!confirm("Гравець уже натиснув кнопку, але відповідь не оцінено. Завершити запитання без зміни балів?"))return;
+ if(buzzed!==null&&!answerShown&&!game.categories[current.ci]?.questions[current.qi]?.[4]&&!confirm("Гравець уже натиснув кнопку, але відповідь не оцінено. Завершити запитання без зміни балів?"))return;
  game.used[current.key]=true;persist();current=null;buzzed=null;answerShown=false;
  $("#questionModal").classList.remove("open");renderBoard();publishAudience("board");
 }
